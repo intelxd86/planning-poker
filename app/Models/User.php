@@ -42,4 +42,24 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function votes()
+    {
+        return $this->hasMany(Vote::class);
+    }
+
+    public function games()
+    {
+        return $this->hasManyThrough(Game::class, Vote::class);
+    }
+
+    public function rooms()
+    {
+        return $this->hasManyThrough(Room::class, Game::class);
+    }
+
+    public function votesForGame(Game $game)
+    {
+        return $this->votes->where('game_id', $game->id);
+    }
 }
