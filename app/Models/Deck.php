@@ -15,4 +15,9 @@ class Deck extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function getCards(): array
+    {
+        return explode(',', $this->cards);
+    }
 }

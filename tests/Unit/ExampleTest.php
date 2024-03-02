@@ -13,4 +13,11 @@ class ExampleTest extends TestCase
     {
         $this->assertTrue(true);
     }
+
+    public function test_get_cards(): void
+    {
+        $deck = new \App\Models\Deck();
+        $deck->cards = '1,2,3,4,5';
+        $this->assertEquals(['1', '2', '3', '4', '5'], $deck->getCards());
+    }
 }
