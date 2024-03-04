@@ -2,35 +2,51 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Game;
+use App\Models\Room;
+use App\Models\Vote;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class GameController extends Controller
 {
+    public function showRoom(Request $request, Room $room)
+    {
+        return view('welcome', ['room' => $room->uuid]);
+    }
+
     public function createRoom(Request $request)
     {
-        $room = new \App\Models\Room();
-        $room->uuid = \Illuminate\Support\Str::uuid();
+        $room = new Room();
+        $room->uuid = Str::uuid();
         $room->user_id = $request->user()->id;
         $room->save();
 
         return response()->json(['room' => $room->uuid]);
     }
 
-    public function createGame(Request $request)
+    public function createGame(Request $request, Room $room)
     {
-        $game = new \App\Models\Game();
-        $game->room_id = $request->input('room');
+        if ($room->user_id !== $request->user()->id) {
+            abort(403);
+        }
+
+        $game = new Game();
+        $game->uuid = Str::uuid();
+        $game->deck_id = $request->input('deck');
+        $game->room_id = $room->id;
         $game->save();
 
-        return response()->json(['game' => $game->id]);
+        return response()->json(['game' => $game->uuid]);
     }
 
-    public function vote(Request $request)
+    public function vote(Request $request, Game $game)
     {
-        $game = \App\Models\Game::find($request->input('game'));
+        $game = Game::find($request->input('game'));
+
         $user = $request->user();
 
-        $vote = new \App\Models\Vote();
+        $vote = new Vote();
         $vote->game_id = $game->id;
         $vote->user_id = $user->id;
         $vote->value = $request->input('value');

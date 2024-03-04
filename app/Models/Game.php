@@ -9,7 +9,7 @@ class Game extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['room_id'];
+    protected $fillable = ['room_id', 'uuid'];
 
     public function room()
     {
@@ -19,5 +19,10 @@ class Game extends Model
     public function votes()
     {
         return $this->hasMany(Vote::class);
+    }
+
+    public function deck()
+    {
+        return $this->hasOne(Deck::class);
     }
 }

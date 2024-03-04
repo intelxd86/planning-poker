@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('games', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
+            $table->foreignId('deck_id')->constrained();
             $table->foreignId('room_id')->constrained();
             $table->timestamps();
         });
