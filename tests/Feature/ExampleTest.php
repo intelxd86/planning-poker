@@ -33,5 +33,17 @@ class ExampleTest extends TestCase
 
         $response = $this->actingAs($user)->postJson('/room/' . $room . '/game', ['deck' => $deck->id]);
         $response->assertStatus(200);
+
+        $game = $response['game'];
+
+        $response = $this->actingAs($user)->postJson('/room/' . $room . '/game/' . $game . '/vote', ['value' => 15]);
+        $response->assertStatus(403);
+
+        $this->assertDatabaseMissing('votes', ['game_id' => Game::where('uuid', $game)->first()->id]);
+
+        $response = $this->actingAs($user)->postJson('/room/' . $room . '/game/' . $game . '/vote', ['value' => 3]);
+        $response->assertStatus(200);
+
+        $this->assertDatabaseHas('votes', ['game_id' => Game::where('uuid', $game)->first()->id, 'value' => 3]);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Deck;
 use App\Models\Game;
 use App\Models\Room;
 use App\Models\Vote;
@@ -40,9 +41,15 @@ class GameController extends Controller
         return response()->json(['game' => $game->uuid]);
     }
 
-    public function vote(Request $request, Game $game)
+    public function vote(Request $request, Room $room, Game $game)
     {
-        $game = Game::find($request->input('game'));
+        $deck = Deck::where('id', $game->deck_id)->firstOrFail();
+
+        $value = $request->input('value');
+
+        if (!in_array($value, $deck->getCards())) {
+            abort(403);
+        }
 
         $user = $request->user();
 
@@ -52,6 +59,11 @@ class GameController extends Controller
         $vote->value = $request->input('value');
         $vote->save();
 
-        return response()->json(['vote' => $vote->id]);
+        return response()->json(['success' => true]);
+    }
+
+    public function getVotes(Request $request, Room $room, Game $game)
+    {
+
     }
 }
