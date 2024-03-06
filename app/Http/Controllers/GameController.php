@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewGameEvent;
+use App\Events\VoteEvent;
 use App\Models\Deck;
 use App\Models\Game;
 use App\Models\Room;
@@ -38,6 +40,8 @@ class GameController extends Controller
         $game->room_id = $room->id;
         $game->save();
 
+        broadcast(new NewGameEvent($room, $game));
+
         return response()->json(['game' => $game->uuid]);
     }
 
@@ -59,11 +63,15 @@ class GameController extends Controller
         $vote->value = $request->input('value');
         $vote->save();
 
+        broadcast(new VoteEvent($room, $game, $value));
+
         return response()->json(['success' => true]);
     }
 
-    public function getVotes(Request $request, Room $room, Game $game)
+    public function getGameState(Request $request, Room $room, Game $game)
     {
+        $votes = Vote::where('game_id', $game->id)->get();
 
+        return response()->json(['votes' => $votes->pluck('value')]);
     }
 }

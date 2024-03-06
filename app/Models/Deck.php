@@ -23,6 +23,12 @@ class Deck extends Model
 
     public function getCards(): array
     {
-        return explode(',', $this->cards);
+        $cards = explode(',', $this->cards);
+        return array_values(
+            array_filter(
+                $cards,
+                fn ($val) => trim($val) !== '' && is_numeric($val)
+            )
+        );
     }
 }
