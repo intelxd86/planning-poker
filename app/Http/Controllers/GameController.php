@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\GameEndEvent;
 use App\Events\NewGameEvent;
 use App\Events\VoteEvent;
 use App\Models\Deck;
@@ -34,6 +35,12 @@ class GameController extends Controller
             abort(403);
         }
 
+        if ($room->gameOngoing()) {
+            abort(403);
+        }
+
+        // TODO: validte input deck
+
         $game = new Game();
         $game->uuid = Str::uuid();
         $game->deck_id = $request->input('deck');
@@ -49,9 +56,15 @@ class GameController extends Controller
     {
         $deck = Deck::where('id', $game->deck_id)->firstOrFail();
 
+        // TODO: validate input value
+
         $value = $request->input('value');
 
         if (!in_array($value, $deck->getCards())) {
+            abort(403);
+        }
+
+        if ($game->ended()) {
             abort(403);
         }
 
@@ -63,7 +76,7 @@ class GameController extends Controller
         $vote->value = $request->input('value');
         $vote->save();
 
-        broadcast(new VoteEvent($room, $game, $value));
+        broadcast(new VoteEvent($room, $game, $value, $user));
 
         return response()->json(['success' => true]);
     }
@@ -73,5 +86,36 @@ class GameController extends Controller
         $votes = Vote::where('game_id', $game->id)->get();
 
         return response()->json(['votes' => $votes->pluck('value')]);
+    }
+
+    public function endGame(Request $request, Room $room, Game $game)
+    {
+        if ($room->user_id !== $request->user()->id) {
+            abort(403);
+        }
+
+        if ($game->ended()) {
+            abort(403);
+        }
+
+        $game->ended_at = now();
+        $game->save();
+
+        broadcast(new GameEndEvent($room, $game));
+
+        return response()->json(['success' => true]);
+    }
+
+    public function spectator(Request $request, Room $room)
+    {
+        // TODO: validate input spectator
+
+        $spectator = $request->input('spectator');
+
+
+
+
+
+        return response()->json(['success' => true]);
     }
 }

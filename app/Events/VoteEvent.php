@@ -4,6 +4,7 @@ namespace App\Events;
 
 use App\Models\Game;
 use App\Models\Room;
+use App\Models\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -20,15 +21,17 @@ class VoteEvent implements ShouldBroadcastNow
     public $room;
     public $game;
     public $value;
+    public $user;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(Room $room, Game $game, int $value)
+    public function __construct(Room $room, Game $game, int $value, User $user)
     {
         $this->room = $room->uuid;
         $this->game = $game->uuid;
         $this->value = $value;
+        $this->user = $user;
     }
 
     /**
@@ -41,5 +44,10 @@ class VoteEvent implements ShouldBroadcastNow
         return [
             new PresenceChannel('room.' . $this->room->uuid),
         ];
+    }
+
+    public function broadcastWith(): array
+    {
+        return ['game' => $this->game->uuid, 'user' => $this->user->name];
     }
 }

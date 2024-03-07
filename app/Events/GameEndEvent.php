@@ -2,6 +2,8 @@
 
 namespace App\Events;
 
+use App\Models\Game;
+use App\Models\Room;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -11,7 +13,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class GameStopEvent implements ShouldBroadcastNow
+class GameEndEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -21,9 +23,10 @@ class GameStopEvent implements ShouldBroadcastNow
     /**
      * Create a new event instance.
      */
-    public function __construct()
+    public function __construct(Room $room, Game $game)
     {
-        //
+        $this->room = $room;
+        $this->game = $game;
     }
 
     /**
@@ -36,5 +39,10 @@ class GameStopEvent implements ShouldBroadcastNow
         return [
             new PresenceChannel('room.' . $this->room->uuid),
         ];
+    }
+
+    public function broadcastWith(): array
+    {
+        return ['game' => $this->game->uuid];
     }
 }

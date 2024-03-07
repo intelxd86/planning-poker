@@ -9,7 +9,7 @@ class Game extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['room_id', 'uuid'];
+    protected $fillable = ['room_id', 'uuid', 'deck_id', 'ended_at'];
 
     public function room()
     {
@@ -24,5 +24,10 @@ class Game extends Model
     public function deck()
     {
         return $this->hasOne(Deck::class);
+    }
+
+    public function ended() : bool
+    {
+        return $this->ended_at !== null;
     }
 }

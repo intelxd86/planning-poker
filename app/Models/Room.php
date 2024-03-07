@@ -30,4 +30,9 @@ class Room extends Model
     {
         return $this->votes()->count();
     }
+
+    public function gameOngoing()
+    {
+        return $this->games()->whereNull('ended_at')->exists();
+    }
 }
