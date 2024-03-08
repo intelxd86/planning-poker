@@ -35,4 +35,9 @@ class Room extends Model
     {
         return $this->games()->whereNull('ended_at')->exists();
     }
+
+    public function spectators()
+    {
+        return $this->hasMany(Spectator::class);
+    }
 }

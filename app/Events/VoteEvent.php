@@ -28,8 +28,8 @@ class VoteEvent implements ShouldBroadcastNow
      */
     public function __construct(Room $room, Game $game, int $value, User $user)
     {
-        $this->room = $room->uuid;
-        $this->game = $game->uuid;
+        $this->room = $room;
+        $this->game = $game;
         $this->value = $value;
         $this->user = $user;
     }

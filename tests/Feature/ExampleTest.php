@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Deck;
 use App\Models\Game;
+use App\Models\Room;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -45,5 +46,20 @@ class ExampleTest extends TestCase
         $response->assertStatus(200);
 
         $this->assertDatabaseHas('votes', ['game_id' => Game::where('uuid', $game)->first()->id, 'value' => 3]);
+    }
+
+    public function test_spectator()
+    {
+        $this->assertDatabaseEmpty('spectators');
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->postJson('/room');
+
+        $room = $response['room'];
+
+        $response = $this->actingAs($user)->post('/room/' . $room . '/spectator');
+        $response->assertStatus(200);
+
+        $this->assertDatabaseHas('spectators', ['room_id' => Room::where('uuid', $room)->first()->id, 'user_id' => $user->id]);
     }
 }

@@ -8,6 +8,7 @@ use App\Events\VoteEvent;
 use App\Models\Deck;
 use App\Models\Game;
 use App\Models\Room;
+use App\Models\Spectator;
 use App\Models\Vote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -112,9 +113,20 @@ class GameController extends Controller
 
         $spectator = $request->input('spectator');
 
+        $user = $request->user();
 
+        $existingSpectator = Spectator::where('user_id', $user->id)
+            ->where('room_id', $room->id)
+            ->first();
 
-
+        if ($existingSpectator) {
+            $existingSpectator->delete();
+        } else {
+            $spectator = new Spectator();
+            $spectator->room_id = $room->id;
+            $spectator->user_id = $user->id;
+            $spectator->save();
+        }
 
         return response()->json(['success' => true]);
     }
