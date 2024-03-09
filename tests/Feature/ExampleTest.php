@@ -61,5 +61,17 @@ class ExampleTest extends TestCase
         $response->assertStatus(200);
 
         $this->assertDatabaseHas('spectators', ['room_id' => Room::where('uuid', $room)->first()->id, 'user_id' => $user->id]);
+
+        $response = $this->actingAs($user)->post('/room/' . $room . '/spectator');
+        $response->assertStatus(403);
+
+        $response = $this->actingAs($user)->delete('/room/' . $room . '/spectator');
+        $response->assertStatus(200);
+
+        $this->assertDatabaseMissing('spectators', ['room_id' => Room::where('uuid', $room)->first()->id, 'user_id' => $user->id]);
+        $this->assertDatabaseEmpty('spectators');
+
+        $response = $this->actingAs($user)->delete('/room/' . $room . '/spectator');
+        $response->assertStatus(403);
     }
 }

@@ -21,6 +21,7 @@ Route::get('/', function () {
 Route::get('/room/{room}', [GameController::class, 'showRoom']);
 Route::post('/room', [GameController::class, 'createRoom']);
 Route::post('/room/{room}/game', [GameController::class, 'createGame']);
-Route::post('/room/{room}/spectator', [GameController::class, 'spectator']);
+Route::post('/room/{room}/spectator', [GameController::class, 'setSpectator']);
+Route::delete('/room/{room}/spectator', [GameController::class, 'unsetSpectator']);
 Route::post('/room/{room}/game/{game}/vote', [GameController::class, 'vote']);
 Route::post('/room/{room}/game/{game}/end', [GameController::class, 'stopGame']);

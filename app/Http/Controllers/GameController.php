@@ -107,26 +107,40 @@ class GameController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function spectator(Request $request, Room $room)
+    public function setSpectator(Request $request, Room $room)
     {
-        // TODO: validate input spectator
-
-        $spectator = $request->input('spectator');
-
         $user = $request->user();
 
-        $existingSpectator = Spectator::where('user_id', $user->id)
+        $spectator = Spectator::where('user_id', $user->id)
             ->where('room_id', $room->id)
             ->first();
 
-        if ($existingSpectator) {
-            $existingSpectator->delete();
-        } else {
-            $spectator = new Spectator();
-            $spectator->room_id = $room->id;
-            $spectator->user_id = $user->id;
-            $spectator->save();
+        if ($spectator) {
+            abort(403);
         }
+
+        $spectator = new Spectator();
+        $spectator->room_id = $room->id;
+        $spectator->user_id = $user->id;
+        $spectator->save();
+
+
+        return response()->json(['success' => true]);
+    }
+
+
+    public function unsetSpectator(Request $request, Room $room)
+    {
+        $user = $request->user();
+
+        $spectator = Spectator::where('user_id', $user->id)
+            ->where('room_id', $room->id)
+            ->first();
+
+        if (!$spectator) {
+            abort(403);
+        }
+        $spectator->delete();
 
         return response()->json(['success' => true]);
     }
