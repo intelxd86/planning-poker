@@ -9,7 +9,12 @@ class Game extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['room_id', 'uuid', 'deck_id', 'ended_at'];
+    protected $fillable = ['room_id', 'uuid', 'deck_id', 'ended_at', 'reveal_at'];
+
+    protected $casts = [
+        'ended_at' => 'datetime',
+        'reveal_at' => 'datetime',
+    ];
 
     public function room()
     {
@@ -26,8 +31,13 @@ class Game extends Model
         return $this->hasOne(Deck::class);
     }
 
-    public function ended() : bool
+    public function isEnded() : bool
     {
         return $this->ended_at !== null;
+    }
+
+    public function canReveal() : bool
+    {
+        return $this->reveal_at !== null && $this->reveal_at->isPast();
     }
 }

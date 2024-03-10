@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('deck_id')->constrained();
             $table->foreignId('room_id')->constrained();
             $table->timestamp('ended_at')->nullable();
+            $table->timestamp('reveal_at')->nullable();
             $table->timestamps();
         });
     }

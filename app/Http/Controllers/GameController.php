@@ -10,6 +10,7 @@ use App\Models\Game;
 use App\Models\Room;
 use App\Models\Spectator;
 use App\Models\Vote;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -65,7 +66,7 @@ class GameController extends Controller
             abort(403);
         }
 
-        if ($game->ended()) {
+        if ($game->isEnded()) {
             abort(403);
         }
 
@@ -85,21 +86,50 @@ class GameController extends Controller
     public function getGameState(Request $request, Room $room, Game $game)
     {
         $votes = Vote::where('game_id', $game->id)->get();
+        $spectators = Spectator::where('room_id', $room->id)->get();
 
-        return response()->json(['votes' => $votes->pluck('value')]);
+        return response()->json([
+            'voted' => $votes->pluck('user_id'),
+            'spectators' => $spectators->pluck('user_id'),
+            'ended' => $game->isEnded(),
+            'reveal' => $game->canReveal(),
+        ]);
     }
 
-    public function endGame(Request $request, Room $room, Game $game)
+    public function revealVotes(Request $request, Room $room, Game $game)
+    {
+        if (!$game->isEnded() || !$game->canReveal()) {
+            abort(403);
+        }
+
+        $votes = Vote::where('game_id', $game->id)->get();
+
+        return response()->json([
+            'votes' => $votes->map(function ($vote) {
+                return [
+                    'value' => $vote->value,
+                    'user' => $vote->user_id,
+                ];
+            }),
+            'average' => $votes->avg('value'),
+            'median' => $votes->median('value'),
+            'min' => $votes->min('value'),
+            'max' => $votes->max('value'),
+        ]);
+    }
+
+    public function stopGame(Request $request, Room $room, Game $game)
     {
         if ($room->user_id !== $request->user()->id) {
             abort(403);
         }
 
-        if ($game->ended()) {
+        if ($game->isEnded()) {
             abort(403);
         }
 
         $game->ended_at = now();
+        $game->reveal_at = Carbon::now()->addSeconds(5);
         $game->save();
 
         broadcast(new GameEndEvent($room, $game));
@@ -127,7 +157,6 @@ class GameController extends Controller
 
         return response()->json(['success' => true]);
     }
-
 
     public function unsetSpectator(Request $request, Room $room)
     {
