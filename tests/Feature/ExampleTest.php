@@ -142,4 +142,40 @@ class ExampleTest extends TestCase
         $response = $this->actingAs($user)->delete('/room/' . $room . '/spectator');
         $response->assertStatus(403);
     }
+
+    public function test_input_validation(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->postJson('/room');
+
+        $room = $response['room'];
+
+        $deck = Deck::factory()->create(['user_id' => $user->id]);
+
+        $response = $this->actingAs($user)->postJson('/room/' . $room . '/game');
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['deck']);
+        $response->assertJson(['errors' => ['deck' => ['Deck id is required']]]);
+
+        $response = $this->actingAs($user)->postJson('/room/' . $room . '/game', ['deck' => 'a']);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['deck']);
+        $response->assertJson(['errors' => ['deck' => ['Please provide deck id']]]);
+
+        $response = $this->actingAs($user)->postJson('/room/' . $room . '/game', ['deck' => $deck->id]);
+        $response->assertStatus(200);
+
+        $game = $response['game'];
+
+        $response = $this->actingAs($user)->postJson('/room/' . $room . '/game/' . $game . '/vote');
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['value']);
+        $response->assertJson(['errors' => ['value' => ['Vote value is required']]]);
+
+        $response = $this->actingAs($user)->postJson('/room/' . $room . '/game/' . $game . '/vote', ['value' => 'a']);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['value']);
+        $response->assertJson(['errors' => ['value' => ['Vote value must be an integer']]]);
+    }
 }

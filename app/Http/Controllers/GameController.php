@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Events\GameEndEvent;
 use App\Events\NewGameEvent;
 use App\Events\VoteEvent;
+use App\Http\Requests\CreateGameRequest;
+use App\Http\Requests\VoteRequest;
 use App\Models\Deck;
 use App\Models\Game;
 use App\Models\Room;
@@ -31,7 +33,7 @@ class GameController extends Controller
         return response()->json(['room' => $room->uuid]);
     }
 
-    public function createGame(Request $request, Room $room)
+    public function createGame(CreateGameRequest $request, Room $room)
     {
         if ($room->user_id !== $request->user()->id) {
             abort(403);
@@ -40,8 +42,6 @@ class GameController extends Controller
         if ($room->gameOngoing()) {
             abort(403);
         }
-
-        // TODO: validte input deck
 
         $game = new Game();
         $game->uuid = Str::uuid();
@@ -54,13 +54,11 @@ class GameController extends Controller
         return response()->json(['game' => $game->uuid]);
     }
 
-    public function vote(Request $request, Room $room, Game $game)
+    public function vote(VoteRequest $request, Room $room, Game $game)
     {
-        $deck = Deck::where('id', $game->deck_id)->firstOrFail();
-
-        // TODO: validate input value
-
         $value = $request->input('value');
+
+        $deck = Deck::where('id', $game->deck_id)->firstOrFail();
 
         if (!in_array($value, $deck->getCards())) {
             abort(403);
