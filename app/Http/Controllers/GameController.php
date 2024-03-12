@@ -43,9 +43,14 @@ class GameController extends Controller
             abort(403);
         }
 
+        $deck = Deck::where('uuid', $request->input('deck'))->first();
+        if (!$deck) {
+            abort(403);
+        }
+
         $game = new Game();
         $game->uuid = Str::uuid();
-        $game->deck_id = $request->input('deck');
+        $game->deck_id = $deck;
         $game->room_id = $room->id;
         $game->save();
 

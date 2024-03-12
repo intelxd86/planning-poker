@@ -36,10 +36,10 @@ class ExampleTest extends TestCase
 
         $deck = Deck::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($otherUser)->postJson('/room/' . $room . '/game', ['deck' => $deck->id]);
+        $response = $this->actingAs($otherUser)->postJson('/room/' . $room . '/game', ['deck' => $deck->uuid]);
         $response->assertStatus(403);
 
-        $response = $this->actingAs($user)->postJson('/room/' . $room . '/game', ['deck' => $deck->id]);
+        $response = $this->actingAs($user)->postJson('/room/' . $room . '/game', ['deck' => $deck->uuid]);
         $response->assertStatus(200);
 
         $game = $response['game'];
@@ -116,7 +116,7 @@ class ExampleTest extends TestCase
 
         $deck = Deck::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->postJson('/room/' . $room . '/game', ['deck' => $deck->id]);
+        $response = $this->actingAs($user)->postJson('/room/' . $room . '/game', ['deck' => $deck->uuid]);
         $response->assertStatus(200);
 
         $game = $response['game'];
@@ -156,14 +156,14 @@ class ExampleTest extends TestCase
         $response = $this->actingAs($user)->postJson('/room/' . $room . '/game');
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['deck']);
-        $response->assertJson(['errors' => ['deck' => ['Deck id is required']]]);
+        $response->assertJson(['errors' => ['deck' => ['Deck UUID is required']]]);
 
         $response = $this->actingAs($user)->postJson('/room/' . $room . '/game', ['deck' => 'a']);
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['deck']);
-        $response->assertJson(['errors' => ['deck' => ['Please provide deck id']]]);
+        $response->assertJson(['errors' => ['deck' => ['Please provide deck UUID']]]);
 
-        $response = $this->actingAs($user)->postJson('/room/' . $room . '/game', ['deck' => $deck->id]);
+        $response = $this->actingAs($user)->postJson('/room/' . $room . '/game', ['deck' => $deck->uuid]);
         $response->assertStatus(200);
 
         $game = $response['game'];

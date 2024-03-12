@@ -22,15 +22,15 @@ class CreateGameRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'deck' => ['required', 'integer'],
+            'deck' => ['required', 'uuid'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'deck.required' => 'Deck id is required',
-            'deck.integer' => 'Please provide deck id',
+            'deck.required' => 'Deck UUID is required',
+            'deck.uuid' => 'Please provide deck UUID',
         ];
     }
 }
