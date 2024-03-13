@@ -18,6 +18,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::post('/deck', [GameController::class, 'createDeck']);
 Route::get('/room/{room}', [GameController::class, 'showRoom']);
 Route::post('/room', [GameController::class, 'createRoom']);
 Route::post('/room/{room}/game', [GameController::class, 'createGame']);

@@ -151,7 +151,24 @@ class ExampleTest extends TestCase
 
         $room = $response['room'];
 
-        $deck = Deck::factory()->create(['user_id' => $user->id]);
+        $response = $this->actingAs($user)->postJson('/deck', ['name' => '', 'cards' => '']);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['name']);
+        $response->assertJson(['errors' => ['name' => ['Deck name is required']]]);
+        $response->assertJsonValidationErrors(['cards']);
+        $response->assertJson(['errors' => ['cards' => ['Please provide deck cards']]]);
+
+        $response = $this->actingAs($user)->postJson('/deck', ['name' => 1, 'cards' => 1]);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['name']);
+        $response->assertJson(['errors' => ['name' => ['Deck name must be a string']]]);
+        $response->assertJsonValidationErrors(['cards']);
+        $response->assertJson(['errors' => ['cards' => ['Deck cards must be a string of comma separated values']]]);
+
+        $response = $this->actingAs($user)->postJson('/deck', ['name' => 'fibo', 'cards' => '1,2,3,4,5']);
+        $response->assertStatus(200);
+
+        $deck = $response['deck'];
 
         $response = $this->actingAs($user)->postJson('/room/' . $room . '/game');
         $response->assertStatus(422);
@@ -163,7 +180,7 @@ class ExampleTest extends TestCase
         $response->assertJsonValidationErrors(['deck']);
         $response->assertJson(['errors' => ['deck' => ['Please provide deck UUID']]]);
 
-        $response = $this->actingAs($user)->postJson('/room/' . $room . '/game', ['deck' => $deck->uuid]);
+        $response = $this->actingAs($user)->postJson('/room/' . $room . '/game', ['deck' => $deck]);
         $response->assertStatus(200);
 
         $game = $response['game'];

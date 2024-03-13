@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\GameEndEvent;
 use App\Events\NewGameEvent;
 use App\Events\VoteEvent;
+use App\Http\Requests\CreateDeckRequest;
 use App\Http\Requests\CreateGameRequest;
 use App\Http\Requests\VoteRequest;
 use App\Models\Deck;
@@ -50,7 +51,7 @@ class GameController extends Controller
 
         $game = new Game();
         $game->uuid = Str::uuid();
-        $game->deck_id = $deck;
+        $game->deck_id = $deck->id;
         $game->room_id = $room->id;
         $game->save();
 
@@ -175,5 +176,17 @@ class GameController extends Controller
         $spectator->delete();
 
         return response()->json(['success' => true]);
+    }
+
+    public function createDeck(CreateDeckRequest $request)
+    {
+        $deck = new Deck();
+        $deck->uuid = Str::uuid();
+        $deck->name = $request->input('name');
+        $deck->cards = $request->input('cards');
+        $deck->user_id = $request->user()->id;
+        $deck->save();
+
+        return response()->json(['deck' => $deck->uuid]);
     }
 }
