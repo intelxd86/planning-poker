@@ -90,11 +90,13 @@ class GameController extends Controller
     public function getGameState(Request $request, Room $room, Game $game)
     {
         $votes = Vote::where('game_id', $game->id)->get();
-        $spectators = Spectator::where('room_id', $room->id)->get();
+        $spectators = Spectator::where('room_id', $room->id)->with('user')->get();
 
         return response()->json([
             'voted' => $votes->pluck('user_id'),
-            'spectators' => $spectators->pluck('user_id'),
+            'spectators' => $spectators->map(function ($spectator) {
+                return  $spectator->user->uuid;
+            }),
             'ended' => $game->isEnded(),
             'reveal' => $game->canReveal(),
         ]);
@@ -106,13 +108,13 @@ class GameController extends Controller
             abort(403);
         }
 
-        $votes = Vote::where('game_id', $game->id)->get();
+        $votes = Vote::where('game_id', $game->id)->with('user')->get();
 
         return response()->json([
             'votes' => $votes->map(function ($vote) {
                 return [
                     'value' => $vote->value,
-                    'user' => $vote->user_id,
+                    'user' => $vote->user->uuid,
                 ];
             }),
             'average' => $votes->avg('value'),

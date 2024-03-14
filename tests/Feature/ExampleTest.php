@@ -57,8 +57,8 @@ class ExampleTest extends TestCase
         $response = $this->actingAs($user)->get('/room/' . $room . '/game/' . $game);
         $response->assertStatus(200);
         $response->assertExactJson([
-            'voted' => [ User::where('id', $user->id)->first()->id ],
-            'spectators' => [ ],
+            'voted' => [User::where('id', $user->id)->first()->id],
+            'spectators' => [],
             'ended' => false,
             'reveal' => false
         ]);
@@ -72,8 +72,8 @@ class ExampleTest extends TestCase
         $response = $this->actingAs($otherUser)->get('/room/' . $room . '/game/' . $game);
         $response->assertStatus(200);
         $response->assertExactJson([
-            'voted' => [ User::where('id', $user->id)->first()->id, User::where('id', $otherUser->id)->first()->id ],
-            'spectators' => [ ],
+            'voted' => [User::where('id', $user->id)->first()->id, User::where('id', $otherUser->id)->first()->id],
+            'spectators' => [],
             'ended' => false,
             'reveal' => false
         ]);
@@ -90,8 +90,8 @@ class ExampleTest extends TestCase
         $response->assertStatus(200);
         $response->assertExactJson([
             'votes' => [
-                ['value' => 3, 'user' => User::where('id', $user->id)->first()->id],
-                ['value' => 5, 'user' => User::where('id', $otherUser->id)->first()->id]
+                ['value' => 3, 'user' => User::where('id', $user->id)->first()->uuid],
+                ['value' => 5, 'user' => User::where('id', $otherUser->id)->first()->uuid]
             ],
             'average' => 4,
             'median' => 4,
@@ -124,8 +124,8 @@ class ExampleTest extends TestCase
         $response = $this->actingAs($user)->get('/room/' . $room . '/game/' . $game);
         $response->assertStatus(200);
         $response->assertExactJson([
-            'voted' => [ ],
-            'spectators' => [ 3 ],
+            'voted' => [],
+            'spectators' => [ User::where('id', $user->id)->first()->uuid ],
             'ended' => false,
             'reveal' => false
         ]);
