@@ -5,16 +5,8 @@ namespace Tests\Unit;
 use App\Models\Deck;
 use PHPUnit\Framework\TestCase;
 
-class ExampleTest extends TestCase
+class DeckTest extends TestCase
 {
-    /**
-     * A basic test example.
-     */
-    public function test_that_true_is_true(): void
-    {
-        $this->assertTrue(true);
-    }
-
     public function test_get_cards(): void
     {
         $deck = new Deck();
