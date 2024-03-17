@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class UserTest extends TestCase
@@ -54,5 +55,34 @@ class UserTest extends TestCase
 
         $this->assertDatabaseCount('users', 1);
         $this->assertDatabaseHas('users', ['email' => 'test@example.com']);
+    }
+
+    public function test_login_user(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'test@test.com',
+            'password' => Hash::make('password'),
+        ]);
+
+        $response = $this->postJson('/user/login', [
+            'email' => '',
+            'password' => ''
+        ]);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['email', 'password']);
+
+        $response = $this->postJson('/user/login', [
+            'email' => 'test@test.com',
+            'password' => 'password'
+        ]);
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['user']);
+        $response->assertJson([
+            'user' => $user->uuid,
+        ]);
+
+
+        $response = $this->postJson('/user/logout');
+        $response->assertStatus(200);
     }
 }

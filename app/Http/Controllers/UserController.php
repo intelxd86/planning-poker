@@ -32,4 +32,11 @@ class UserController extends Controller
 
         return response()->json(['user' => Auth::user()->uuid]);
     }
+
+    public function logoutUser(Request $request)
+    {
+        Auth::logout();
+
+        return response()->json();
+    }
 }

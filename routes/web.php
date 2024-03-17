@@ -21,6 +21,7 @@ Route::get('/', function () {
 
 Route::post('/user/create', [UserController::class, 'createUser']);
 Route::post('/user/login', [UserController::class, 'loginUser']);
+Route::post('/user/logout', [UserController::class, 'logoutUser']);
 
 Route::post('/deck', [GameController::class, 'createDeck']);
 Route::get('/room/{room}', [GameController::class, 'showRoom']);
