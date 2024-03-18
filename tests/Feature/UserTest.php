@@ -57,12 +57,17 @@ class UserTest extends TestCase
         $this->assertDatabaseHas('users', ['email' => 'test@example.com']);
     }
 
-    public function test_login_user(): void
+    public function test_user_auth(): void
     {
+        $this->assertGuest();
+
         $user = User::factory()->create([
             'email' => 'test@test.com',
             'password' => Hash::make('password'),
         ]);
+
+        $response = $this->getJson('/room');
+        $response->assertStatus(401);
 
         $response = $this->postJson('/user/login', [
             'email' => '',
@@ -81,8 +86,17 @@ class UserTest extends TestCase
             'user' => $user->uuid,
         ]);
 
+        $this->assertAuthenticatedAs($user);
+
+        $response = $this->getJson('/room');
+        $response->assertStatus(200);
 
         $response = $this->postJson('/user/logout');
         $response->assertStatus(200);
+
+        $this->assertGuest();
+
+        $response = $this->getJson('/room');
+        $response->assertStatus(401);
     }
 }

@@ -26,7 +26,7 @@ class UserController extends Controller
 
     public function loginUser(LoginRequest $request)
     {
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        if (!Auth::guard('web')->attempt($request->only('email', 'password'))) {
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
 
@@ -35,7 +35,10 @@ class UserController extends Controller
 
     public function logoutUser(Request $request)
     {
-        Auth::logout();
+        Auth::guard('web')->logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return response()->json();
     }

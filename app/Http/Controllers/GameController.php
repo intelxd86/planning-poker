@@ -24,6 +24,13 @@ class GameController extends Controller
         return view('welcome', ['room' => $room->uuid]);
     }
 
+    public function getUserRooms(Request $request)
+    {
+        $rooms = Room::where('user_id', $request->user()->id)->get();
+
+        return response()->json(['rooms' => $rooms->pluck('uuid')]);
+    }
+
     public function createRoom(Request $request)
     {
         $room = new Room();
