@@ -15,5 +15,9 @@
         "react-dom": "^18.2.0",
         "sass": "^1.56.1",
         "vite": "^5.0.0"
+    },
+    "dependencies": {
+        "laravel-echo": "^1.16.0",
+        "pusher-js": "^8.4.0-rc2"
     }
 }
