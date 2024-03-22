@@ -31,8 +31,7 @@ window.Echo.join('example')
         console.error(error);
     });
 
-
-function Example() {
+function Poker() {
     return (
         <div className="container">
             <div className="row justify-content-center">
@@ -48,14 +47,14 @@ function Example() {
     );
 }
 
-export default Example;
+export default Poker;
 
-if (document.getElementById('example')) {
-    const Index = ReactDOM.createRoot(document.getElementById("example"));
+if (document.getElementById('poker')) {
+    const Index = ReactDOM.createRoot(document.getElementById("poker"));
 
     Index.render(
         <React.StrictMode>
-            <Example />
+            <Poker />
         </React.StrictMode>
     )
 }

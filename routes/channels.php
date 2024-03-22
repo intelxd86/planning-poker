@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\Broadcast;
 |
 */
 
-Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
-    return (int) $user->id === (int) $id;
+Broadcast::channel('room.{uuid}', function ($user, $uuid) {
+    return $user->uuid;
+});
+
+Broadcast::channel('example', function ($user) {
+    return  ['uuid' => $user->uuid, 'name' => $user->email];
 });

@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('welcome', ['user' => auth()->user()]);
 });
 
 Route::post('/user/create', [UserController::class, 'createUser']);
