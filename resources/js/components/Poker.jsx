@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import Echo from 'laravel-echo';
-
 import Pusher from 'pusher-js';
+
 window.Pusher = Pusher;
 
 window.Echo = new Echo({
@@ -16,36 +16,41 @@ window.Echo = new Echo({
     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
 });
 
-
-window.Echo.join('example')
-    .here((users) => {
-        console.log(users);
-    })
-    .joining((user) => {
-        console.log(user.name);
-    })
-    .leaving((user) => {
-        console.log(user.name);
-    })
-    .error((error) => {
-        console.error(error);
-    });
-
 function Poker() {
-    return (
-        <div className="container">
-            <div className="row justify-content-center">
-                <div className="col-md-8">
-                    <div className="card">
-                        <div className="card-header">Example Component</div>
+    const [users, setUsers] = useState([]);
 
-                        <div className="card-body">I'm an example component!</div>
-                    </div>
-                </div>
-            </div>
+    useEffect(() => {
+        const channel = window.Echo.join('example');
+
+        channel
+            .here((currentUsers) => {
+                setUsers(currentUsers);
+            })
+            .joining((user) => {
+                setUsers((prevUsers) => {
+                    if (prevUsers.some((u) => u.id === user.id)) {
+                        return prevUsers;
+                    } else {
+                        return [...prevUsers, user];
+                    }
+                });
+            })
+            .leaving((user) => {
+                setUsers((prevUsers) => prevUsers.filter((u) => u.id !== user.id));
+            });
+    }, []);
+
+    return (
+        <div>
+            <h2>Online Users</h2>
+            <ul>
+                {users.map((user) => (
+                    <li key={user.id}>{user.name}</li>
+                ))}
+            </ul>
         </div>
     );
-}
+};
 
 export default Poker;
 

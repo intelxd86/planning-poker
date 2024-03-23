@@ -26,7 +26,7 @@ class UserController extends Controller
 
     public function loginUser(LoginRequest $request)
     {
-        if (!Auth::guard('web')->attempt($request->only('email', 'password'))) {
+        if (!Auth::guard('web')->attempt($request->only('email', 'password'), true)) {
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
 

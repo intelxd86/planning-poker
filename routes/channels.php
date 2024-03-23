@@ -18,5 +18,5 @@ Broadcast::channel('room.{uuid}', function ($user, $uuid) {
 });
 
 Broadcast::channel('example', function ($user) {
-    return  ['uuid' => $user->uuid, 'name' => $user->email];
+    return  ['id' => $user->uuid, 'name' => $user->email];
 });

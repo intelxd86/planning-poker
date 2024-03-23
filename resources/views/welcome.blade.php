@@ -10,7 +10,7 @@
 </head>
 
 <body class="antialiased">
-    @if ($user)
+    @if (isset($user) && $user)
     <div>
         <div id="poker"></div>
     </div>

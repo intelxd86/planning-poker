@@ -57,7 +57,7 @@ class GameTest extends TestCase
         $response = $this->actingAs($user)->get('/room/' . $room . '/game/' . $game);
         $response->assertStatus(200);
         $response->assertExactJson([
-            'voted' => [User::where('id', $user->id)->first()->id],
+            'voted' => [User::where('id', $user->id)->first()->uuid],
             'spectators' => [],
             'ended' => false,
             'reveal' => false
@@ -72,7 +72,7 @@ class GameTest extends TestCase
         $response = $this->actingAs($otherUser)->get('/room/' . $room . '/game/' . $game);
         $response->assertStatus(200);
         $response->assertExactJson([
-            'voted' => [User::where('id', $user->id)->first()->id, User::where('id', $otherUser->id)->first()->id],
+            'voted' => [User::where('id', $user->id)->first()->uuid, User::where('id', $otherUser->id)->first()->uuid],
             'spectators' => [],
             'ended' => false,
             'reveal' => false
