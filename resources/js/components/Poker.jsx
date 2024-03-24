@@ -1,26 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import Echo from 'laravel-echo';
-import Pusher from 'pusher-js';
+import { BrowserRouter as Router, Route, useParams } from 'react-router-dom';
 
-window.Pusher = Pusher;
-
-window.Echo = new Echo({
-    broadcaster: 'pusher',
-    key: import.meta.env.VITE_PUSHER_APP_KEY,
-    wsHost: import.meta.env.VITE_PUSHER_HOST,
-    wsPort: import.meta.env.VITE_PUSHER_PORT,
-    wssPort: import.meta.env.VITE_PUSHER_PORT,
-    forceTLS: (import.meta.env.VITE_PUSHER_SCHEME ?? 'https') === 'https',
-    enabledTransports: ['ws', 'wss'],
-    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
-});
-
-function Poker() {
+function PokerRoom() {
     const [users, setUsers] = useState([]);
+    const { uuid } = useParams();
 
     useEffect(() => {
-        const channel = window.Echo.join('example');
+        const channel = window.Echo.join('room.' + uuid);
 
         channel
             .here((currentUsers) => {
@@ -52,14 +39,19 @@ function Poker() {
     );
 };
 
-export default Poker;
+export default PokerRoom;
 
 if (document.getElementById('poker')) {
     const Index = ReactDOM.createRoot(document.getElementById("poker"));
 
     Index.render(
         <React.StrictMode>
-            <Poker />
+            <Router>
+                <Switch>
+                    <Route path="/room/:uuid" component={PokerRoom} />
+                </Switch>
+            </Router>
+
         </React.StrictMode>
     )
 }

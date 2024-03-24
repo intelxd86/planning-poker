@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
-import axios from 'axios';
 
 const LoginForm = () => {
     const [email, setEmail] = useState('');
@@ -10,13 +9,13 @@ const LoginForm = () => {
         e.preventDefault();
 
         try {
-            const response = await axios.post('/user/login', { email, password });
+            const response = await window.axios.post('/api/user/login', { email, password });
             if (response.status === 200) {
                 window.location.reload();
             } else {
                 console.log('Login failed. Please try again.');
             }
-        } catch (e) {
+        } catch (error) {
             console.error('exception:', error);
         }
     };

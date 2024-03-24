@@ -21,21 +21,21 @@ class UserTest extends TestCase
     public function test_create_user(): void
     {
         $this->assertDatabaseEmpty('users');
-        $response = $this->postJson('/user/create', [
+        $response = $this->postJson('/api/user/create', [
             'name' => 'test',
             'email' => '',
         ]);
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['email', 'password', 'password_confirmation']);
 
-        $response = $this->postJson('/user/create', [
+        $response = $this->postJson('/api/user/create', [
             'name' => '',
             'email' => 'test@example.com'
         ]);
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['name', 'password', 'password_confirmation']);
 
-        $response = $this->postJson('/user/create', [
+        $response = $this->postJson('/api/user/create', [
             'name' => 'test',
             'email' => 'test@example.com',
             'password' => 'password',
@@ -44,7 +44,7 @@ class UserTest extends TestCase
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['password_confirmation']);
 
-        $response = $this->postJson('/user/create', [
+        $response = $this->postJson('/api/user/create', [
             'name' => 'test',
             'email' => 'test@example.com',
             'password' => 'password',
@@ -66,17 +66,17 @@ class UserTest extends TestCase
             'password' => Hash::make('password'),
         ]);
 
-        $response = $this->getJson('/room');
+        $response = $this->getJson('/api/room');
         $response->assertStatus(401);
 
-        $response = $this->postJson('/user/login', [
+        $response = $this->postJson('/api/user/login', [
             'email' => '',
             'password' => ''
         ]);
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['email', 'password']);
 
-        $response = $this->postJson('/user/login', [
+        $response = $this->postJson('/api/user/login', [
             'email' => 'test@test.com',
             'password' => 'password'
         ]);
@@ -88,15 +88,15 @@ class UserTest extends TestCase
 
         $this->assertAuthenticatedAs($user);
 
-        $response = $this->getJson('/room');
+        $response = $this->getJson('/api/room');
         $response->assertStatus(200);
 
-        $response = $this->postJson('/user/logout');
+        $response = $this->postJson('/api/user/logout');
         $response->assertStatus(200);
 
         $this->assertGuest();
 
-        $response = $this->getJson('/room');
+        $response = $this->getJson('/api/room');
         $response->assertStatus(401);
     }
 }
