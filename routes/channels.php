@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Room;
 use Illuminate\Support\Facades\Broadcast;
 
 /*
@@ -14,9 +15,7 @@ use Illuminate\Support\Facades\Broadcast;
 */
 
 Broadcast::channel('room.{uuid}', function ($user, $uuid) {
-    return  ['id' => $user->uuid, 'name' => $user->email];
-});
-
-Broadcast::channel('example', function ($user) {
-    return  ['id' => $user->uuid, 'name' => $user->email];
+    if (Room::where('uuid', $uuid)->where('user_id', $user->id)->exists()) {
+        return ['id' => $user->uuid, 'name' => $user->email];
+    }
 });

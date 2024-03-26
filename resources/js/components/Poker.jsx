@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter as Router, Route, useParams, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, useParams, Routes, redirect, useNavigate } from 'react-router-dom';
 import { Typography, Box, Container, Button, TextField, Grid, Autocomplete } from '@mui/material';
 
 function PokerRoom() {
@@ -43,7 +43,17 @@ function PokerRoom() {
     );
 };
 
-function CreateRoom() {
+function CreateNewGame() {
+
+    const [gameName, setGameName] = useState('');
+    const [deckUUID, setDeckUUID] = useState('');
+
+    async function submitCreateGame(e) {
+        e.preventDefault();
+        const response = await window.axios.post('/api/room/', { name: gameName, deck: deckUUID });
+        console.log(response.data);
+    }
+
     return (
         <Box
             component="form"
@@ -52,22 +62,78 @@ function CreateRoom() {
             }}
             noValidate
             autoComplete="off"
+            onSubmit={submitCreateGame}
         >
-            <Grid
-                container
-                alignItems="center"
-                direction="column"
-            >
-                <Grid item>
-                    <TextField label="Room name" variant="outlined" sx={{ m: 1 }} />
-                </Grid>
-                <Grid item>
-                    <TextField label="Deck UUID" variant="outlined" sx={{ m: 1 }} />
-                </Grid>
-                <Grid item>
-                    <Button variant="contained" sx={{ m: 1 }}>Create room</Button>
-                </Grid>
-            </Grid>
+            <Box>
+                <Box>
+                    <TextField
+                        label="Game name"
+                        variant="outlined"
+                        sx={{ m: 1 }}
+                        fullWidth
+                        onChange={(e) => setGameName(e.target.value)}
+                        value={gameName}
+                    />
+                </Box>
+                <Box>
+                    <TextField
+                        label="Deck UUID"
+                        variant="outlined"
+                        sx={{ m: 1 }}
+                        fullWidth
+                        onChange={(e) => setDeckUUID(e.target.value)}
+                        value={deckUUID}
+                    />
+                </Box>
+                <Box>
+                    <Button
+                        variant="contained"
+                        fullWidth
+                        sx={{ m: 1 }}
+                        type="submit"
+                    >
+                        Create new game
+                    </Button>
+                </Box>
+            </Box>
+        </Box>
+    )
+}
+
+
+function CreateRoom() {
+
+    const navigate = useNavigate();
+
+    async function submitCreateRoom(e) {
+        e.preventDefault();
+        const response = await window.axios.post('/api/room');
+        if (response.status === 200) {
+            navigate('/room/' + response.data.room);
+        }
+        console.log(response.data);
+    }
+
+    return (
+        <Box
+            component="form"
+            sx={{
+                m: 1, p: 1
+            }}
+            //noValidate
+            autoComplete="off"
+            onSubmit={submitCreateRoom}
+        >
+            <Box>
+                <Button
+                    variant="contained"
+                    fullWidth
+                    sx={{ m: 1 }}
+                    type="submit"
+                >
+                    Create room
+                </Button>
+            </Box>
         </Box>
     )
 }
