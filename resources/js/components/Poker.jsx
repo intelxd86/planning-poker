@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter as Router, Route, useParams, Routes, redirect, useNavigate } from 'react-router-dom';
-import { Typography, Box, Container, Button, TextField, Grid, Autocomplete } from '@mui/material';
+import { BrowserRouter as Router, Route, useParams, Routes, useNavigate, Navigate } from 'react-router-dom';
+import { Typography, Box, Container, Button, TextField, Grid, Autocomplete, ButtonGroupContext } from '@mui/material';
 
 function PokerRoom() {
     const [users, setUsers] = useState([]);
@@ -111,7 +111,6 @@ function CreateRoom() {
         if (response.status === 200) {
             navigate('/room/' + response.data.room);
         }
-        console.log(response.data);
     }
 
     return (
@@ -120,7 +119,6 @@ function CreateRoom() {
             sx={{
                 m: 1, p: 1
             }}
-            //noValidate
             autoComplete="off"
             onSubmit={submitCreateRoom}
         >
@@ -138,11 +136,48 @@ function CreateRoom() {
     )
 }
 
+function ListRooms() {
+
+    const [rooms, setRooms] = useState([]);
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        window.axios.get('/api/room').then((response) => {
+            setRooms(response.data.rooms);
+        });
+    }, []);
+
+    return (
+        <Box
+            sx={{
+                m: 1, p: 1
+            }}
+        >
+            <Typography variant="h4">Recent rooms</Typography>
+            <ul>
+                {rooms.map((room) => (
+                        <Button
+                            variant="contained"
+                            fullWidth
+                            sx={{ m: 1 }}
+                            onClick={() => navigate('/room/' + room)}
+                            key={room}
+                        >
+                            {room}
+                        </Button>
+                ))}
+            </ul>
+        </Box>
+    )
+}
+
 function Lobby() {
 
     return (
         <Container maxWidth="sm">
             <CreateRoom />
+            <ListRooms />
         </Container>
     );
 }
