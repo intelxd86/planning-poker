@@ -10,6 +10,9 @@ class Deck extends Model
     use HasFactory;
 
     protected $fillable = ['name', 'cards', 'user_id', 'is_public', 'uuid'];
+    protected $casts = [
+        'is_public' => 'boolean',
+    ];
 
     public function user()
     {

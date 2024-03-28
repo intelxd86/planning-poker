@@ -24,6 +24,7 @@ class CreateDeckRequest extends FormRequest
         return [
             'name' => ['required', 'string'],
             'cards' => ['required', 'string'],
+            'is_public' => ['required', 'boolean']
         ];
     }
 
@@ -34,6 +35,7 @@ class CreateDeckRequest extends FormRequest
             'cards.required' => 'Please provide deck cards',
             'name.string' => 'Deck name must be a string',
             'cards.string' => 'Deck cards must be a string of comma separated values',
+            'is_public.required' => 'Please provide deck accesibility',
         ];
     }
 }

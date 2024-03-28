@@ -47,6 +47,13 @@ function CreateNewGame() {
 
     const [gameName, setGameName] = useState('');
     const [deckUUID, setDeckUUID] = useState('');
+    const [decks, setDecks] = useState([]);
+
+    useEffect(() => {
+        window.axios.get('/api/deck').then((response) => {
+            setDecks(response.data.decks);
+        });
+    }, []);
 
     async function submitCreateGame(e) {
         e.preventDefault();

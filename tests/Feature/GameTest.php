@@ -165,7 +165,7 @@ class GameTest extends TestCase
         $response->assertJsonValidationErrors(['cards']);
         $response->assertJson(['errors' => ['cards' => ['Deck cards must be a string of comma separated values']]]);
 
-        $response = $this->actingAs($user)->postJson('/api/deck', ['name' => 'fibo', 'cards' => '1,2,3,4,5']);
+        $response = $this->actingAs($user)->postJson('/api/deck', ['name' => 'fibo', 'cards' => '1,2,3,4,5', 'is_public' => true]);
         $response->assertStatus(200);
 
         $deck = $response['deck'];
@@ -194,5 +194,32 @@ class GameTest extends TestCase
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['value']);
         $response->assertJson(['errors' => ['value' => ['Vote value must be an integer']]]);
+    }
+
+    public function test_deck()
+    {
+        $user = User::factory()->create();
+
+        $this->assertDatabaseEmpty('decks');
+
+        $response = $this->actingAs($user)->postJson('/api/deck', ['name' => 'fibo', 'cards' => '1,2,3,4,5', 'is_public' => false]);
+        $response->assertStatus(200);
+
+        $this->assertDatabaseHas('decks', ['name' => 'fibo', 'cards' => '1,2,3,4,5', 'user_id' => $user->id, 'is_public' => false]);
+
+        $otherUser = User::factory()->create();
+
+
+        $response = $this->actingAs($otherUser)->postJson('/api/deck', ['name' => 'tribo', 'cards' => '1,2,3,4,5', 'is_public' => true]);
+        $response->assertStatus(200);
+
+        $this->assertDatabaseHas('decks', ['name' => 'tribo', 'cards' => '1,2,3,4,5', 'user_id' => $otherUser->id, 'is_public' => true]);
+
+        $response = $this->actingAs($user)->getJson('/api/deck');
+        $response->assertStatus(200);
+        $response->assertExactJson([
+            ['uuid' => Deck::where('name', 'fibo')->first()->uuid, 'name' => 'fibo', 'cards' => '1,2,3,4,5'],
+            ['uuid' => Deck::where('name', 'tribo')->first()->uuid, 'name' => 'tribo', 'cards' => '1,2,3,4,5']
+        ]);
     }
 }

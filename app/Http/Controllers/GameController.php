@@ -195,9 +195,26 @@ class GameController extends Controller
         $deck->uuid = Str::uuid();
         $deck->name = $request->input('name');
         $deck->cards = $request->input('cards');
+        $deck->is_public = $request->input('is_public');
         $deck->user_id = $request->user()->id;
         $deck->save();
 
         return response()->json(['deck' => $deck->uuid]);
+    }
+
+    public function getDecks(Request $request)
+    {
+        $decks = Deck::where(function ($query) use ($request) {
+            $query->where('user_id', $request->user()->id)
+                ->orWhere('is_public', true);
+        })->get();
+
+        return response()->json($decks->map(function ($deck) {
+            return [
+                'uuid' => $deck->uuid,
+                'name' => $deck->name,
+                'cards' => $deck->cards,
+            ];
+        }));
     }
 }
