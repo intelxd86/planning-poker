@@ -21,7 +21,7 @@ class DeckFactory extends Factory
             'uuid' => Str::uuid(),
             'name' => $this->faker->name,
             'cards' => '1,2,3,4,5',
-            'user_id' => \App\Models\User::factory(),
+            'user_id' => null,
             'is_public' => $this->faker->boolean,
         ];
     }

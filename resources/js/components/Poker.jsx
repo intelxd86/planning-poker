@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Route, useParams, Routes, useNavigate, Navigate } from 'react-router-dom';
-import { Typography, Box, Container, Button, TextField, Grid, Autocomplete, ButtonGroupContext } from '@mui/material';
+import { Typography, Box, Container, Button, TextField, Grid, Autocomplete, ButtonGroupContext, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 
 function PokerRoom() {
     const [users, setUsers] = useState([]);
@@ -26,6 +26,12 @@ function PokerRoom() {
             .leaving((user) => {
                 setUsers((prevUsers) => prevUsers.filter((u) => u.id !== user.id));
             })
+            .listen('NewGameEvent', (event) => {
+                console.log(event);
+            })
+            .listen('GameEndEvent', (event) => {
+                console.log(event);
+            })
             .error((error) => {
                 console.error(error);
             });
@@ -39,26 +45,32 @@ function PokerRoom() {
                     <li key={user.id}>{user.name}</li>
                 ))}
             </ul>
+            <CreateNewGame />
         </div>
     );
 };
 
 function CreateNewGame() {
-
+    const { uuid } = useParams();
     const [gameName, setGameName] = useState('');
     const [deckUUID, setDeckUUID] = useState('');
     const [decks, setDecks] = useState([]);
 
     useEffect(() => {
         window.axios.get('/api/deck').then((response) => {
-            setDecks(response.data.decks);
+            const deckOptions = response.data.map((deck) => ({ label: deck.name + ' (' + deck.cards + ')', id: deck.uuid }));
+            setDecks(deckOptions);
+            setDeckUUID(deckOptions[0].id);
         });
     }, []);
 
     async function submitCreateGame(e) {
         e.preventDefault();
-        const response = await window.axios.post('/api/room/', { name: gameName, deck: deckUUID });
-        console.log(response.data);
+        const response = await window.axios.post('/api/room/' + uuid + '/game', { name: gameName, deck: deckUUID });
+    }
+
+    function handleDeckChange(event) {
+        setDeckUUID(event.target.value);
     }
 
     return (
@@ -83,14 +95,25 @@ function CreateNewGame() {
                     />
                 </Box>
                 <Box>
-                    <TextField
-                        label="Deck UUID"
-                        variant="outlined"
-                        sx={{ m: 1 }}
+                    <FormControl
                         fullWidth
-                        onChange={(e) => setDeckUUID(e.target.value)}
-                        value={deckUUID}
-                    />
+                        sx={{ m: 1 }}
+                    >
+                        <InputLabel id="game-deck-select-label">Card deck</InputLabel>
+                        <Select
+                            labelId="game-deck-select-label"
+                            id="game-deck-select"
+                            value={deckUUID}
+                            label="Deck UUID"
+                            onChange={handleDeckChange}
+                        >
+                            {decks.map((deck) => (
+                                <MenuItem key={deck.id} value={deck.id}>
+                                    {deck.label}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
                 </Box>
                 <Box>
                     <Button
@@ -164,15 +187,15 @@ function ListRooms() {
             <Typography variant="h4">Recent rooms</Typography>
             <ul>
                 {rooms.map((room) => (
-                        <Button
-                            variant="contained"
-                            fullWidth
-                            sx={{ m: 1 }}
-                            onClick={() => navigate('/room/' + room)}
-                            key={room}
-                        >
-                            {room}
-                        </Button>
+                    <Button
+                        variant="contained"
+                        fullWidth
+                        sx={{ m: 1 }}
+                        onClick={() => navigate('/room/' + room)}
+                        key={room}
+                    >
+                        {room}
+                    </Button>
                 ))}
             </ul>
         </Box>

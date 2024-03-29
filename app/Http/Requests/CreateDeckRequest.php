@@ -24,7 +24,7 @@ class CreateDeckRequest extends FormRequest
         return [
             'name' => ['required', 'string'],
             'cards' => ['required', 'string'],
-            'is_public' => ['required', 'boolean']
+            //'is_public' => ['required', 'boolean']
         ];
     }
 

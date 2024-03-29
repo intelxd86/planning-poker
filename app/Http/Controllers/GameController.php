@@ -195,7 +195,7 @@ class GameController extends Controller
         $deck->uuid = Str::uuid();
         $deck->name = $request->input('name');
         $deck->cards = $request->input('cards');
-        $deck->is_public = $request->input('is_public');
+        $deck->is_public = false;
         $deck->user_id = $request->user()->id;
         $deck->save();
 
