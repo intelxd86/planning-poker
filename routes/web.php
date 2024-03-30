@@ -24,7 +24,7 @@ Route::group(['prefix' => 'api'], function () {
         Route::get('/deck', [GameController::class, 'getDecks']);
 
         Route::get('/room', [GameController::class, 'getUserRooms']);
-        Route::get('/room/{room}', [GameController::class, 'showRoom']);
+        Route::get('/room/{room}', [GameController::class, 'roomInfo']);
         Route::post('/room', [GameController::class, 'createRoom']);
         Route::post('/room/{room}/game', [GameController::class, 'createGame']);
         Route::post('/room/{room}/spectator', [GameController::class, 'setSpectator']);

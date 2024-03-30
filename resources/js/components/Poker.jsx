@@ -6,8 +6,16 @@ import { Typography, Box, Container, Button, TextField, Grid, Autocomplete, Butt
 function PokerRoom() {
     const [users, setUsers] = useState([]);
     const { uuid } = useParams();
+    const [roomState, setRoomState] = useState(null);
 
     useEffect(() => {
+
+        const response = window.axios.get('/api/room/' + uuid);
+        response.then((response) => {
+            setRoomState(response.data);
+            console.log(response.data);
+        });
+
         const channel = window.Echo.join('room.' + uuid);
 
         channel

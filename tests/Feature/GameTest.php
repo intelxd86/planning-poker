@@ -58,7 +58,6 @@ class GameTest extends TestCase
         $response->assertStatus(200);
         $response->assertExactJson([
             'voted' => [User::where('id', $user->id)->first()->uuid],
-            'spectators' => [],
             'ended' => false,
             'reveal' => false
         ]);
@@ -73,7 +72,6 @@ class GameTest extends TestCase
         $response->assertStatus(200);
         $response->assertExactJson([
             'voted' => [User::where('id', $user->id)->first()->uuid, User::where('id', $otherUser->id)->first()->uuid],
-            'spectators' => [],
             'ended' => false,
             'reveal' => false
         ]);
@@ -121,13 +119,12 @@ class GameTest extends TestCase
 
         $game = $response['game'];
 
-        $response = $this->actingAs($user)->getJson('/api/room/' . $room . '/game/' . $game);
+        $response = $this->actingAs($user)->getJson('/api/room/' . $room );
         $response->assertStatus(200);
         $response->assertExactJson([
-            'voted' => [],
             'spectators' => [User::where('id', $user->id)->first()->uuid],
-            'ended' => false,
-            'reveal' => false
+            'game' => $game,
+            'room' => $room
         ]);
 
         $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/spectator');
@@ -135,6 +132,14 @@ class GameTest extends TestCase
 
         $response = $this->actingAs($user)->deleteJson('/api/room/' . $room . '/spectator');
         $response->assertStatus(200);
+
+        $response = $this->actingAs($user)->getJson('/api/room/' . $room );
+        $response->assertStatus(200);
+        $response->assertExactJson([
+            'spectators' => [],
+            'game' => $game,
+            'room' => $room
+        ]);
 
         $this->assertDatabaseMissing('spectators', ['room_id' => Room::where('uuid', $room)->first()->id, 'user_id' => $user->id]);
         $this->assertDatabaseEmpty('spectators');
@@ -202,18 +207,14 @@ class GameTest extends TestCase
 
         $this->assertDatabaseEmpty('decks');
 
-        $response = $this->actingAs($user)->postJson('/api/deck', ['name' => 'fibo', 'cards' => '1,2,3,4,5', 'is_public' => false]);
+        $deck = Deck::factory()->create(['name' => 'fibo', 'cards' => '1,2,3,4,5', 'is_public' => true, 'user_id' => null]);
+
+        $this->assertDatabaseHas('decks', ['name' => 'fibo', 'cards' => '1,2,3,4,5', 'user_id' => null, 'is_public' => true]);
+
+        $response = $this->actingAs($user)->postJson('/api/deck', ['name' => 'tribo', 'cards' => '1,2,3,4,5', 'is_public' => false]);
         $response->assertStatus(200);
 
-        $this->assertDatabaseHas('decks', ['name' => 'fibo', 'cards' => '1,2,3,4,5', 'user_id' => $user->id, 'is_public' => false]);
-
-        $otherUser = User::factory()->create();
-
-
-        $response = $this->actingAs($otherUser)->postJson('/api/deck', ['name' => 'tribo', 'cards' => '1,2,3,4,5', 'is_public' => true]);
-        $response->assertStatus(200);
-
-        $this->assertDatabaseHas('decks', ['name' => 'tribo', 'cards' => '1,2,3,4,5', 'user_id' => $otherUser->id, 'is_public' => true]);
+        $this->assertDatabaseHas('decks', ['name' => 'tribo', 'cards' => '1,2,3,4,5', 'user_id' => $user->id, 'is_public' => false]);
 
         $response = $this->actingAs($user)->getJson('/api/deck');
         $response->assertStatus(200);

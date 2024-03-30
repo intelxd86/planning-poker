@@ -19,9 +19,21 @@ use Illuminate\Support\Str;
 
 class GameController extends Controller
 {
-    public function showRoom(Request $request, Room $room)
+    public function roomInfo(Request $request, Room $room)
     {
-        return view('welcome', ['room' => $room->uuid]);
+        $currentGame = Game::where('room_id', $room->id)
+            ->whereNull('ended_at')
+            ->first();
+
+        $spectators = Spectator::where('room_id', $room->id)->with('user')->get();
+
+        return [
+            'room' => $room->uuid,
+            'game' => $currentGame ? $currentGame->uuid : null,
+            'spectators' => $spectators->map(function ($spectator) {
+                return  $spectator->user->uuid;
+            }),
+        ];
     }
 
     public function getUserRooms(Request $request)
@@ -97,14 +109,10 @@ class GameController extends Controller
     public function getGameState(Request $request, Room $room, Game $game)
     {
         $votes = Vote::where('game_id', $game->id)->with('user')->get();
-        $spectators = Spectator::where('room_id', $room->id)->with('user')->get();
 
         return response()->json([
             'voted' => $votes->map(function ($vote) {
                 return $vote->user->uuid;
-            }),
-            'spectators' => $spectators->map(function ($spectator) {
-                return  $spectator->user->uuid;
             }),
             'ended' => $game->isEnded(),
             'reveal' => $game->canReveal(),
