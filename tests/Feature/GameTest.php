@@ -127,10 +127,24 @@ class GameTest extends TestCase
             'room' => $room
         ]);
 
+        $otherUser = User::factory()->create();
+        $response = $this->actingAs($otherUser)->postJson('/api/room/' . $room . '/spectator');
+
+        $response = $this->actingAs($user)->getJson('/api/room/' . $room );
+        $response->assertStatus(200);
+        $response->assertExactJson([
+            'spectators' => [User::where('id', $user->id)->first()->uuid, User::where('id', $otherUser->id)->first()->uuid],
+            'game' => $game,
+            'room' => $room
+        ]);
+
         $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/spectator');
         $response->assertStatus(403);
 
         $response = $this->actingAs($user)->deleteJson('/api/room/' . $room . '/spectator');
+        $response->assertStatus(200);
+
+        $response = $this->actingAs($otherUser)->deleteJson('/api/room/' . $room . '/spectator');
         $response->assertStatus(200);
 
         $response = $this->actingAs($user)->getJson('/api/room/' . $room );
