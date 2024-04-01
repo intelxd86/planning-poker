@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\GameEndEvent;
 use App\Events\NewGameEvent;
+use App\Events\UserSpectatorEvent;
 use App\Events\VoteEvent;
 use App\Http\Requests\CreateDeckRequest;
 use App\Http\Requests\CreateGameRequest;
@@ -177,6 +178,8 @@ class GameController extends Controller
         $spectator->user_id = $user->id;
         $spectator->save();
 
+        broadcast(new UserSpectatorEvent($room, $user, true));
+
 
         return response()->json(['success' => true]);
     }
@@ -193,6 +196,8 @@ class GameController extends Controller
             abort(403);
         }
         $spectator->delete();
+
+        broadcast(new UserSpectatorEvent($room, $user, false));
 
         return response()->json(['success' => true]);
     }

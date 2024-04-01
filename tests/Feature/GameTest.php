@@ -2,12 +2,17 @@
 
 namespace Tests\Feature;
 
+use App\Events\GameEndEvent;
+use App\Events\NewGameEvent;
+use App\Events\UserSpectatorEvent;
+use App\Events\VoteEvent;
 use App\Models\Deck;
 use App\Models\Game;
 use App\Models\Room;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 class GameTest extends TestCase
@@ -22,6 +27,8 @@ class GameTest extends TestCase
 
     public function test_create_room(): void
     {
+        Event::fake();
+
         $user = User::factory()->create();
         $response = $this->actingAs($user)->postJson('/api/room');
         $response->assertStatus(200);
@@ -37,19 +44,23 @@ class GameTest extends TestCase
         $deck = Deck::factory()->create(['user_id' => $user->id]);
 
         $response = $this->actingAs($otherUser)->postJson('/api/room/' . $room . '/game', ['deck' => $deck->uuid]);
+        Event::assertNotDispatched(NewGameEvent::class);
         $response->assertStatus(403);
 
         $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/game', ['deck' => $deck->uuid]);
+        Event::assertDispatched(NewGameEvent::class);
         $response->assertStatus(200);
 
         $game = $response['game'];
 
         $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/game/' . $game . '/vote', ['value' => 15]);
+        Event::assertNotDispatched(VoteEvent::class);
         $response->assertStatus(403);
 
         $this->assertDatabaseMissing('votes', ['game_id' => Game::where('uuid', $game)->first()->id]);
 
         $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/game/' . $game . '/vote', ['value' => 3]);
+        Event::assertDispatched(VoteEvent::class);
         $response->assertStatus(200);
 
         $this->assertDatabaseHas('votes', ['game_id' => Game::where('uuid', $game)->first()->id, 'value' => 3]);
@@ -66,6 +77,7 @@ class GameTest extends TestCase
         $response->assertStatus(403);
 
         $response = $this->actingAs($otherUser)->postJson('/api/room/' . $room . '/game/' . $game . '/vote', ['value' => 5]);
+        Event::assertDispatched(VoteEvent::class);
         $response->assertStatus(200);
 
         $response = $this->actingAs($otherUser)->getJson('/api/room/' . $room . '/game/' . $game);
@@ -85,6 +97,7 @@ class GameTest extends TestCase
         Carbon::setTestNow(Carbon::now()->addSeconds(5));
 
         $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/game/' . $game . '/reveal');
+        Event::assertDispatched(GameEndEvent::class);
         $response->assertStatus(200);
         $response->assertExactJson([
             'votes' => [
@@ -100,6 +113,7 @@ class GameTest extends TestCase
 
     public function test_spectator()
     {
+        Event::fake();
         $this->assertDatabaseEmpty('spectators');
         $user = User::factory()->create();
 
@@ -108,6 +122,7 @@ class GameTest extends TestCase
         $room = $response['room'];
 
         $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/spectator');
+        Event::assertDispatched(UserSpectatorEvent::class);
         $response->assertStatus(200);
 
         $this->assertDatabaseHas('spectators', ['room_id' => Room::where('uuid', $room)->first()->id, 'user_id' => $user->id]);
@@ -129,6 +144,7 @@ class GameTest extends TestCase
 
         $otherUser = User::factory()->create();
         $response = $this->actingAs($otherUser)->postJson('/api/room/' . $room . '/spectator');
+        Event::assertDispatched(UserSpectatorEvent::class);
 
         $response = $this->actingAs($user)->getJson('/api/room/' . $room );
         $response->assertStatus(200);
@@ -142,9 +158,11 @@ class GameTest extends TestCase
         $response->assertStatus(403);
 
         $response = $this->actingAs($user)->deleteJson('/api/room/' . $room . '/spectator');
+        Event::assertDispatched(UserSpectatorEvent::class);
         $response->assertStatus(200);
 
         $response = $this->actingAs($otherUser)->deleteJson('/api/room/' . $room . '/spectator');
+        Event::assertDispatched(UserSpectatorEvent::class);
         $response->assertStatus(200);
 
         $response = $this->actingAs($user)->getJson('/api/room/' . $room );

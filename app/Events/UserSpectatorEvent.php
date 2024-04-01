@@ -42,4 +42,9 @@ class UserSpectatorEvent implements ShouldBroadcastNow
             new PresenceChannel('room.' . $this->room->uuid)
         ];
     }
+
+    public function broadcastWith(): array
+    {
+        return ['room' => $this->room->uuid, 'user' => $this->user->uuid, 'spectator' => $this->spectator];
+    }
 }
