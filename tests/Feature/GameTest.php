@@ -48,7 +48,9 @@ class GameTest extends TestCase
         $response->assertStatus(403);
 
         $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/game', ['deck' => $deck->uuid]);
-        Event::assertDispatched(NewGameEvent::class);
+        Event::assertDispatched(function (NewGameEvent $event) use ($room) {
+            return $event->room->uuid === $room;
+        });
         $response->assertStatus(200);
 
         $game = $response['game'];
@@ -60,7 +62,11 @@ class GameTest extends TestCase
         $this->assertDatabaseMissing('votes', ['game_id' => Game::where('uuid', $game)->first()->id]);
 
         $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/game/' . $game . '/vote', ['value' => 3]);
-        Event::assertDispatched(VoteEvent::class);
+        Event::assertDispatched(function (VoteEvent $event) use ($game, $user) {
+            return $event->game->uuid === $game &&
+                $event->value === 3 &&
+                $event->user->uuid === User::where('id', $user->id)->first()->uuid;
+        });
         $response->assertStatus(200);
 
         $this->assertDatabaseHas('votes', ['game_id' => Game::where('uuid', $game)->first()->id, 'value' => 3]);
@@ -77,7 +83,11 @@ class GameTest extends TestCase
         $response->assertStatus(403);
 
         $response = $this->actingAs($otherUser)->postJson('/api/room/' . $room . '/game/' . $game . '/vote', ['value' => 5]);
-        Event::assertDispatched(VoteEvent::class);
+        Event::assertDispatched(function (VoteEvent $event) use ($game, $otherUser) {
+            return $event->game->uuid === $game &&
+                $event->value === 5 &&
+                $event->user->uuid === User::where('id', $otherUser->id)->first()->uuid;
+        });
         $response->assertStatus(200);
 
         $response = $this->actingAs($otherUser)->getJson('/api/room/' . $room . '/game/' . $game);
@@ -97,7 +107,9 @@ class GameTest extends TestCase
         Carbon::setTestNow(Carbon::now()->addSeconds(5));
 
         $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/game/' . $game . '/reveal');
-        Event::assertDispatched(GameEndEvent::class);
+        Event::assertDispatched(function (GameEndEvent $event) use ($game) {
+            return $event->game->uuid === $game;
+        });
         $response->assertStatus(200);
         $response->assertExactJson([
             'votes' => [
@@ -134,7 +146,7 @@ class GameTest extends TestCase
 
         $game = $response['game'];
 
-        $response = $this->actingAs($user)->getJson('/api/room/' . $room );
+        $response = $this->actingAs($user)->getJson('/api/room/' . $room);
         $response->assertStatus(200);
         $response->assertExactJson([
             'spectators' => [User::where('id', $user->id)->first()->uuid],
@@ -146,7 +158,7 @@ class GameTest extends TestCase
         $response = $this->actingAs($otherUser)->postJson('/api/room/' . $room . '/spectator');
         Event::assertDispatched(UserSpectatorEvent::class);
 
-        $response = $this->actingAs($user)->getJson('/api/room/' . $room );
+        $response = $this->actingAs($user)->getJson('/api/room/' . $room);
         $response->assertStatus(200);
         $response->assertExactJson([
             'spectators' => [User::where('id', $user->id)->first()->uuid, User::where('id', $otherUser->id)->first()->uuid],
@@ -165,7 +177,7 @@ class GameTest extends TestCase
         Event::assertDispatched(UserSpectatorEvent::class);
         $response->assertStatus(200);
 
-        $response = $this->actingAs($user)->getJson('/api/room/' . $room );
+        $response = $this->actingAs($user)->getJson('/api/room/' . $room);
         $response->assertStatus(200);
         $response->assertExactJson([
             'spectators' => [],
