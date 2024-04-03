@@ -134,7 +134,11 @@ class GameTest extends TestCase
         $room = $response['room'];
 
         $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/spectator');
-        Event::assertDispatched(UserSpectatorEvent::class);
+        Event::assertDispatched(function (UserSpectatorEvent $event) use ($room, $user) {
+            return $event->room->uuid === $room &&
+                $event->user->uuid === User::where('id', $user->id)->first()->uuid &&
+                $event->spectator === true;
+        });
         $response->assertStatus(200);
 
         $this->assertDatabaseHas('spectators', ['room_id' => Room::where('uuid', $room)->first()->id, 'user_id' => $user->id]);
@@ -156,7 +160,11 @@ class GameTest extends TestCase
 
         $otherUser = User::factory()->create();
         $response = $this->actingAs($otherUser)->postJson('/api/room/' . $room . '/spectator');
-        Event::assertDispatched(UserSpectatorEvent::class);
+        Event::assertDispatched(function (UserSpectatorEvent $event) use ($room, $otherUser) {
+            return $event->room->uuid === $room &&
+                $event->user->uuid === User::where('id', $otherUser->id)->first()->uuid &&
+                $event->spectator === true;
+        });
 
         $response = $this->actingAs($user)->getJson('/api/room/' . $room);
         $response->assertStatus(200);
@@ -170,11 +178,19 @@ class GameTest extends TestCase
         $response->assertStatus(403);
 
         $response = $this->actingAs($user)->deleteJson('/api/room/' . $room . '/spectator');
-        Event::assertDispatched(UserSpectatorEvent::class);
+        Event::assertDispatched(function (UserSpectatorEvent $event) use ($room, $user) {
+            return $event->room->uuid === $room &&
+                $event->user->uuid === User::where('id', $user->id)->first()->uuid &&
+                $event->spectator === false;
+        });
         $response->assertStatus(200);
 
         $response = $this->actingAs($otherUser)->deleteJson('/api/room/' . $room . '/spectator');
-        Event::assertDispatched(UserSpectatorEvent::class);
+        Event::assertDispatched(function (UserSpectatorEvent $event) use ($room, $otherUser) {
+            return $event->room->uuid === $room &&
+                $event->user->uuid === User::where('id', $otherUser->id)->first()->uuid &&
+                $event->spectator === false;
+        });
         $response->assertStatus(200);
 
         $response = $this->actingAs($user)->getJson('/api/room/' . $room);
