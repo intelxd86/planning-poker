@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter as Router, Route, useParams, Routes, useNavigate, Navigate } from 'react-router-dom';
-import { Typography, Box, Container, Button, TextField, Grid, Autocomplete, ButtonGroupContext, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { BrowserRouter as Router, Route, useParams, Routes, useNavigate, Navigate, Outlet } from 'react-router-dom';
+import { Typography, Box, Container, Button, TextField, Grid, Autocomplete, ButtonGroupContext, FormControl, InputLabel, Select, MenuItem, AppBar, Toolbar, IconButton } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
 
 function PokerRoom() {
     const [users, setUsers] = useState([]);
     const { uuid } = useParams();
-    const [roomState, setRoomState] = useState(null);
+    const [roomState, setRoomState] = useState({});
 
     useEffect(() => {
 
@@ -38,6 +39,12 @@ function PokerRoom() {
                 console.log(event);
             })
             .listen('GameEndEvent', (event) => {
+                console.log(event);
+            })
+            .listen('VoteEvent', (event) => {
+                console.log(event);
+            })
+            .listen('UserSpectatorEvent', (event) => {
                 console.log(event);
             })
             .error((error) => {
@@ -220,6 +227,33 @@ function Lobby() {
     );
 }
 
+function TopNav() {
+    function Logout() {
+        window.axios.post('/api/user/logout').then((response) => {
+            if (response.status === 200) {
+                window.location.href = '/';
+            }
+        });
+    }
+
+    return (
+        <AppBar position="static">
+            <Toolbar>
+                <Button color="inherit" onClick={Logout}>Logout</Button>
+            </Toolbar>
+        </AppBar >
+    )
+}
+
+function Layout() {
+    return (
+        <>
+            <TopNav />
+            <Outlet />
+        </>
+    );
+}
+
 export default PokerRoom;
 
 if (document.getElementById('poker')) {
@@ -229,8 +263,11 @@ if (document.getElementById('poker')) {
         <React.StrictMode>
             <Router>
                 <Routes>
-                    <Route path="/room/:uuid" element={<PokerRoom />} />
-                    <Route path="*" element={<Lobby />} />
+                    <Route path="/" element={<Layout />} >
+                        <Route index element={<Lobby />} />
+                        <Route path="/room/:uuid" element={<PokerRoom />} />
+                        <Route path="*" element={<Lobby />} />
+                    </Route>
                 </Routes>
             </Router>
         </React.StrictMode>
