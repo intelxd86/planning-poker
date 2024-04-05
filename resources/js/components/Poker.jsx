@@ -53,15 +53,17 @@ function PokerRoom() {
     }, []);
 
     return (
-        <div>
-            <h2>Online Users</h2>
-            <ul>
-                {users.map((user) => (
-                    <li key={user.id}>{user.name}</li>
-                ))}
-            </ul>
+        <>
+            <div>
+                <h2>Online Users</h2>
+                <ul>
+                    {users.map((user) => (
+                        <li key={user.id}>{user.name}</li>
+                    ))}
+                </ul>
+            </div>
             <CreateNewGame />
-        </div>
+        </>
     );
 };
 
@@ -92,56 +94,58 @@ function CreateNewGame() {
         <Box
             component="form"
             sx={{
-                m: 1, p: 1
+
             }}
             noValidate
             autoComplete="off"
+            fullWidth
             onSubmit={submitCreateGame}
         >
-            <Box>
-                <Box>
-                    <TextField
-                        label="Game name"
-                        variant="outlined"
-                        sx={{ m: 1 }}
-                        fullWidth
-                        onChange={(e) => setGameName(e.target.value)}
-                        value={gameName}
-                    />
-                </Box>
-                <Box>
-                    <FormControl
-                        fullWidth
-                        sx={{ m: 1 }}
-                    >
-                        <InputLabel id="game-deck-select-label">Card deck</InputLabel>
-                        <Select
-                            labelId="game-deck-select-label"
-                            id="game-deck-select"
-                            value={deckUUID}
-                            label="Deck UUID"
-                            onChange={handleDeckChange}
-                        >
-                            {decks.map((deck) => (
-                                <MenuItem key={deck.id} value={deck.id}>
-                                    {deck.label}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                </Box>
-                <Box>
-                    <Button
-                        variant="contained"
-                        fullWidth
-                        sx={{ m: 1 }}
-                        type="submit"
-                    >
-                        Create new game
-                    </Button>
-                </Box>
+            <Box
+                sx={{ p: 1 }}
+            >
+                <TextField
+                    label="Game name"
+                    variant="outlined"
+                    fullWidth
+                    onChange={(e) => setGameName(e.target.value)}
+                    value={gameName}
+                />
             </Box>
-        </Box>
+            <Box
+                sx={{ p: 1 }}
+            >
+                <FormControl
+                    fullWidth
+                >
+                    <InputLabel id="game-deck-select-label">Card deck</InputLabel>
+                    <Select
+                        labelId="game-deck-select-label"
+                        id="game-deck-select"
+                        value={deckUUID}
+                        label="Deck UUID"
+                        onChange={handleDeckChange}
+                    >
+                        {decks.map((deck) => (
+                            <MenuItem key={deck.id} value={deck.id}>
+                                {deck.label}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+            </Box>
+            <Box
+                sx={{ p: 1 }}
+            >
+                <Button
+                    variant="contained"
+                    fullWidth
+                    type="submit"
+                >
+                    Create new game
+                </Button>
+            </Box>
+        </Box >
     )
 }
 
