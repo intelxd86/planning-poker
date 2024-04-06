@@ -1,3 +1,4 @@
+import { Box, TextField, Button, Paper, Container } from '@mui/material';
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -21,29 +22,66 @@ const LoginForm = () => {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <div>
-                <label htmlFor="email">Email:</label>
-                <input
-                    type="email"
-                    id="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                />
-            </div>
-            <div>
-                <label htmlFor="password">Password:</label>
-                <input
-                    type="password"
-                    id="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                />
-            </div>
-            <button type="submit">Login</button>
-        </form>
+        <Container
+            maxWidth={"sm"}
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            sx={{ "min-height": "100vh", m: "0 auto" }}
+        >
+            <Paper
+                sx={{
+                    p: 1, margin: "0 auto"
+                }}
+            >
+                <Box
+                    component="form"
+                    noValidate
+                    autoComplete="off"
+                    fullWidth
+                    onSubmit={handleSubmit}
+
+                >
+                    <Box
+                        sx={{ p: 1 }}
+                    >
+                        <TextField
+                            fullWidth
+                            id="email"
+                            label="Email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                    </Box>
+                    <Box
+                        sx={{ p: 1 }}
+                    >
+                        <TextField
+                            fullWidth
+                            id="password"
+                            label="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </Box>
+                    <Box
+                        sx={{ p: 1 }}
+                    >
+                        <Button
+                            variant="contained"
+                            fullWidth
+
+                            type="submit"
+                        >
+                            Login
+                        </Button>
+                    </Box>
+                </Box>
+            </Paper>
+
+        </Container>
     );
 };
 
