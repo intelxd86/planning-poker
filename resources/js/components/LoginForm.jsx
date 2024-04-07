@@ -24,21 +24,18 @@ const LoginForm = () => {
     return (
         <Container
             maxWidth={"sm"}
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            sx={{ "min-height": "100vh", m: "0 auto" }}
+            sx={{ "minHeight": "100vh", m: "0 auto", "flexDirection": "column", "justifyContent": "center", "alignItems": "center", "display": "flex" }}
         >
             <Paper
                 sx={{
-                    p: 1, margin: "0 auto"
+                    p: 1, width: "100%"
                 }}
             >
                 <Box
                     component="form"
                     noValidate
                     autoComplete="off"
-                    fullWidth
+                    sx={{ width: "100%" }}
                     onSubmit={handleSubmit}
 
                 >
@@ -46,7 +43,7 @@ const LoginForm = () => {
                         sx={{ p: 1 }}
                     >
                         <TextField
-                            fullWidth
+                            sx={{ width: "100%" }}
                             id="email"
                             label="Email"
                             value={email}
@@ -58,10 +55,11 @@ const LoginForm = () => {
                         sx={{ p: 1 }}
                     >
                         <TextField
-                            fullWidth
+                            sx={{ width: "100%" }}
                             id="password"
                             label="Password"
                             value={password}
+                            type="password"
                             onChange={(e) => setPassword(e.target.value)}
                             required
                         />
@@ -71,7 +69,7 @@ const LoginForm = () => {
                     >
                         <Button
                             variant="contained"
-                            fullWidth
+                            sx={{ width: "100%" }}
 
                             type="submit"
                         >
