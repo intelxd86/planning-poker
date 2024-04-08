@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Route, useParams, Routes, useNavigate, Navigate, Outlet } from 'react-router-dom';
-import { Typography, Box, Container, Button, TextField, Grid, Autocomplete, ButtonGroupContext, FormControl, InputLabel, Select, MenuItem, AppBar, Toolbar, IconButton } from '@mui/material';
+import { Typography, Box, Container, Button, TextField, Grid, Autocomplete, ButtonGroupContext, FormControl, InputLabel, Select, MenuItem, AppBar, Toolbar, IconButton, DialogContent, DialogTitle, Dialog } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 
 function PokerRoom() {
@@ -72,6 +72,7 @@ function CreateNewGame() {
     const [gameName, setGameName] = useState('');
     const [deckUUID, setDeckUUID] = useState('');
     const [decks, setDecks] = useState([]);
+    const [open, setOpen] = React.useState(false);
 
     useEffect(() => {
         window.axios.get('/api/deck').then((response) => {
@@ -90,62 +91,79 @@ function CreateNewGame() {
         setDeckUUID(event.target.value);
     }
 
-    return (
-        <Box
-            component="form"
-            sx={{
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
 
-            }}
-            noValidate
-            autoComplete="off"
-            fullWidth
-            onSubmit={submitCreateGame}
-        >
-            <Box
-                sx={{ p: 1 }}
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    return (
+        <React.Fragment>
+            <Button variant="outlined" onClick={handleClickOpen}>
+                Create new game
+            </Button>
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                PaperProps={{
+                    component: 'form',
+                    onSubmit: submitCreateGame
+                }}
+                maxWidth="sm"
+                fullWidth
             >
-                <TextField
-                    label="Game name"
-                    variant="outlined"
-                    fullWidth
-                    onChange={(e) => setGameName(e.target.value)}
-                    value={gameName}
-                />
-            </Box>
-            <Box
-                sx={{ p: 1 }}
-            >
-                <FormControl
-                    fullWidth
-                >
-                    <InputLabel id="game-deck-select-label">Card deck</InputLabel>
-                    <Select
-                        labelId="game-deck-select-label"
-                        id="game-deck-select"
-                        value={deckUUID}
-                        label="Deck UUID"
-                        onChange={handleDeckChange}
+                <DialogContent>
+
+                    <Box
+                        sx={{ p: 1 }}
                     >
-                        {decks.map((deck) => (
-                            <MenuItem key={deck.id} value={deck.id}>
-                                {deck.label}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-            </Box>
-            <Box
-                sx={{ p: 1 }}
-            >
-                <Button
-                    variant="contained"
-                    fullWidth
-                    type="submit"
-                >
-                    Create new game
-                </Button>
-            </Box>
-        </Box >
+                        <TextField
+                            label="Game name"
+                            variant="outlined"
+                            fullWidth
+                            onChange={(e) => setGameName(e.target.value)}
+                            value={gameName}
+                        />
+                    </Box>
+                    <Box
+                        sx={{ p: 1 }}
+                    >
+                        <FormControl
+                            fullWidth
+                        >
+                            <InputLabel id="game-deck-select-label">Card deck</InputLabel>
+                            <Select
+                                labelId="game-deck-select-label"
+                                id="game-deck-select"
+                                value={deckUUID}
+                                label="Deck UUID"
+                                onChange={handleDeckChange}
+                            >
+                                {decks.map((deck) => (
+                                    <MenuItem key={deck.id} value={deck.id}>
+                                        {deck.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Box>
+                    <Box
+                        sx={{ p: 1 }}
+                    >
+                        <Button
+                            variant="contained"
+                            fullWidth
+                            type="submit"
+                        >
+                            Create new game
+                        </Button>
+                    </Box>
+                </DialogContent>
+
+            </Dialog>
+        </React.Fragment >
     )
 }
 
