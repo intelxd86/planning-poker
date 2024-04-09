@@ -1,6 +1,103 @@
-import { Box, TextField, Button, Paper, Container } from '@mui/material';
+import { Box, TextField, Button, Paper, Container, DialogContent, Dialog, DialogActions } from '@mui/material';
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
+
+function RegisterForm() {
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [passwordConfirmaton, setPasswordConfirmaton] = useState('');
+
+    const [open, setOpen] = React.useState(false);
+
+
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    async function submitCreateUser(e) {
+        e.preventDefault();
+        const response = await window.axios.post('/api/user/create',
+            {
+                name: name,
+                email: email,
+                password: password,
+                password_confirmation: passwordConfirmaton
+            });
+    }
+
+    return (
+        <React.Fragment>
+            <Button variant="outlined" onClick={handleClickOpen} fullWidth>
+                Create new user
+            </Button>
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                PaperProps={{
+                    component: 'form',
+                    onSubmit: submitCreateUser
+                }}
+                maxWidth="sm"
+                fullWidth
+            >
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="name"
+                        label="Name"
+                        type="text"
+                        fullWidth
+                        required
+                        onChange={(e) => setName(e.target.value)}
+                    />
+                    <TextField
+                        margin="dense"
+                        id="email"
+                        label="Email Address"
+                        type="email"
+                        fullWidth
+                        required
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <TextField
+                        margin="dense"
+                        id="password"
+                        label="Password"
+                        type="password"
+                        fullWidth
+                        required
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <TextField
+                        margin="dense"
+                        id="password_confirmation"
+                        label="Password Confirmation"
+                        type="password"
+                        fullWidth
+                        required
+                        onChange={(e) => setPasswordConfirmaton(e.target.value)}
+                    />
+                </DialogContent>
+                <DialogActions sx={{ p: 1 }}>
+                    <Button
+                        variant="contained"
+                        fullWidth
+                        type="submit"
+                    >
+                        Create user
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </React.Fragment>
+    );
+
+}
 
 const LoginForm = () => {
     const [email, setEmail] = useState('');
@@ -76,9 +173,14 @@ const LoginForm = () => {
                             Login
                         </Button>
                     </Box>
+
+                </Box>
+                <Box
+                    sx={{ p: 1 }}
+                >
+                    <RegisterForm />
                 </Box>
             </Paper>
-
         </Container>
     );
 };
