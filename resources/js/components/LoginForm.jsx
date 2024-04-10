@@ -1,12 +1,15 @@
 import { Box, TextField, Button, Paper, Container, DialogContent, Dialog, DialogActions } from '@mui/material';
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
+import useTextInput from './UseTextInput';
 
 function RegisterForm() {
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [passwordConfirmaton, setPasswordConfirmaton] = useState('');
+    const [state, setState] = useState({ errors: {} });
+
+    const [nameInput, name, setName] = useTextInput('name', state, { label: 'Name', required: true, id: 'register_name', margin: 'dense' });
+    const [emailInput, email, setEmail] = useTextInput('email', state, { label: 'Email Address', required: true, id: 'register_email', type: 'email', margin: 'dense' });
+    const [passwordInput, password, setPassword] = useTextInput('password', state, { label: 'Password', required: true, id: 'register_password', type: 'password', margin: 'dense' });
+    const [passwordConfirmatonInput, passwordConfirmaton, setPasswordConfirmaton] = useTextInput('password_confirmation', state, { label: 'Password Confirmation', required: true, id: 'register_password_confirmation', type: 'password', margin: 'dense' });
 
     const [open, setOpen] = React.useState(false);
 
@@ -21,18 +24,33 @@ function RegisterForm() {
 
     async function submitCreateUser(e) {
         e.preventDefault();
-        const response = await window.axios.post('/api/user/create',
-            {
+        try {
+            const response = await window.axios.post('/api/user/create', {
                 name: name,
                 email: email,
                 password: password,
-                password_confirmation: passwordConfirmaton
+                password_confirmation: passwordConfirmation
             });
+        } catch (error) {
+            if (error.response && error.response.status === 422) {
+                console.log(error);
+                setState(prev => ({ ...prev, errors: error.response.data.errors }));
+            } else {
+                console.error(error);
+            }
+        }
     }
+
 
     return (
         <React.Fragment>
-            <Button variant="outlined" onClick={handleClickOpen} fullWidth>
+            <Button
+                variant="outlined"
+                margin="dense"
+                sx={{ mt: 1 }}
+                onClick={handleClickOpen}
+                fullWidth
+            >
                 Create new user
             </Button>
             <Dialog
@@ -40,59 +58,36 @@ function RegisterForm() {
                 onClose={handleClose}
                 PaperProps={{
                     component: 'form',
-                    onSubmit: submitCreateUser
+                    onSubmit: submitCreateUser,
+                    noValidate: true,
                 }}
                 maxWidth="sm"
                 fullWidth
             >
                 <DialogContent>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="name"
-                        label="Name"
-                        type="text"
-                        fullWidth
-                        required
-                        onChange={(e) => setName(e.target.value)}
-                    />
-                    <TextField
-                        margin="dense"
-                        id="email"
-                        label="Email Address"
-                        type="email"
-                        fullWidth
-                        required
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
-                    <TextField
-                        margin="dense"
-                        id="password"
-                        label="Password"
-                        type="password"
-                        fullWidth
-                        required
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                    <TextField
-                        margin="dense"
-                        id="password_confirmation"
-                        label="Password Confirmation"
-                        type="password"
-                        fullWidth
-                        required
-                        onChange={(e) => setPasswordConfirmaton(e.target.value)}
-                    />
-                </DialogContent>
-                <DialogActions sx={{ p: 1 }}>
+                    {nameInput}
+                    {emailInput}
+                    {passwordInput}
+                    {passwordConfirmatonInput}
                     <Button
                         variant="contained"
                         fullWidth
                         type="submit"
+                        margin="dense"
+                        sx={{ mt: 1 }}
                     >
                         Create user
                     </Button>
-                </DialogActions>
+                    <Button
+                        variant="outlined"
+                        fullWidth
+                        onClick={handleClose}
+                        margin="dense"
+                        sx={{ mt: 1 }}
+                    >
+                        Cancel
+                    </Button>
+                </DialogContent>
             </Dialog>
         </React.Fragment>
     );
@@ -100,8 +95,10 @@ function RegisterForm() {
 }
 
 const LoginForm = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [state, setState] = useState({ errors: {} });
+
+    const [emailInput, email, setEmail] = useTextInput('email', state, { label: 'Email Address', required: true, id: 'login_email', type: 'email', margin: 'dense' });
+    const [passwordInput, password, setPassword] = useTextInput('password', state, { label: 'Password', required: true, id: 'login_password', type: 'password', margin: 'dense' });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -110,13 +107,16 @@ const LoginForm = () => {
             const response = await window.axios.post('/api/user/login', { email, password });
             if (response.status === 200) {
                 window.location.reload();
-            } else {
-                console.log('Login failed. Please try again.');
             }
         } catch (error) {
-            console.error('exception:', error);
+            if (error.response && error.response.status === 422) {
+                setState(prev => ({ ...prev, errors: error.response.data.errors }));
+            } else {
+                console.error(error);
+            }
         }
     };
+
 
     return (
         <Container
@@ -125,7 +125,7 @@ const LoginForm = () => {
         >
             <Paper
                 sx={{
-                    p: 1, width: "100%"
+                    p: 2, width: "100%"
                 }}
             >
                 <Box
@@ -136,50 +136,19 @@ const LoginForm = () => {
                     onSubmit={handleSubmit}
 
                 >
-                    <Box
-                        sx={{ p: 1 }}
+                    {emailInput}
+                    {passwordInput}
+                    <Button
+                        variant="contained"
+                        fullWidth
+                        type="submit"
+                        margin="dense"
+                        sx={{ mt: 1 }}
                     >
-                        <TextField
-                            sx={{ width: "100%" }}
-                            id="email"
-                            label="Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
-                    </Box>
-                    <Box
-                        sx={{ p: 1 }}
-                    >
-                        <TextField
-                            sx={{ width: "100%" }}
-                            id="password"
-                            label="Password"
-                            value={password}
-                            type="password"
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                    </Box>
-                    <Box
-                        sx={{ p: 1 }}
-                    >
-                        <Button
-                            variant="contained"
-                            sx={{ width: "100%" }}
-
-                            type="submit"
-                        >
-                            Login
-                        </Button>
-                    </Box>
-
+                        Login
+                    </Button>
                 </Box>
-                <Box
-                    sx={{ p: 1 }}
-                >
-                    <RegisterForm />
-                </Box>
+                <RegisterForm />
             </Paper>
         </Container>
     );
