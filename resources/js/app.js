@@ -18,5 +18,4 @@ import '@fontsource/roboto/700.css';
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-import './components/Poker';
-import './components/LoginForm';
+import './components/App';

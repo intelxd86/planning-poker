@@ -10,13 +10,7 @@
 </head>
 
 <body class="antialiased">
-    @if (isset($user) && $user)
-    <div>
-        <div id="poker"></div>
-    </div>
-    @else
-        <div id="login_form"></div>
-    @endif
+    <div id="app"></div>
 </body>
 
 </html>
