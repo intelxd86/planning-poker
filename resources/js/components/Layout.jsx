@@ -2,6 +2,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { AppBar, Toolbar, Button } from '@mui/material';
+import { useAppState } from './AppStateContext';
 
 function TopNav() {
     const handleLogout = async (e) => {
@@ -31,9 +32,10 @@ function TopNav() {
 }
 
 export default function Layout() {
+    const { state } = useAppState();
     return (
         <>
-            <TopNav />
+            { state.user ? <TopNav /> : null }
             <Outlet />
         </>
     );

@@ -11,6 +11,9 @@
 
 <body class="antialiased">
     <div id="app"></div>
+    <script>
+        window.initialState = @json($initialState)
+    </script>
 </body>
 
 </html>

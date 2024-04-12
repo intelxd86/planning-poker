@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, Container, Typography } from '@mui/material';
+import { useAppState } from './AppStateContext';
+import LoginForm from './LoginForm';
 
 function CreateRoom() {
 
@@ -75,6 +77,15 @@ function ListRooms() {
 }
 
 export default function Lobby() {
+
+    const { state, setState } = useAppState();
+
+    if (!state.user) {
+        return (
+            <LoginForm />
+        )
+    }
+
     return (
         <Container maxWidth="sm">
             <CreateRoom />
