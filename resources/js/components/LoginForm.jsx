@@ -2,12 +2,14 @@ import { Box, Button, Paper, Container } from '@mui/material';
 import React, { useState } from 'react';
 import useTextInput from './UseTextInput';
 import RegisterForm from './RegisterForm';
+import { useAppState } from './AppStateContext';
 
 const LoginForm = () => {
-    const [state, setState] = useState({ errors: {} });
+    const [formState, setFormState] = useState({ errors: {} });
+    const { state, setState } = useAppState();
 
-    const [emailInput, email, setEmail] = useTextInput('email', state, { label: 'Email Address', required: true, id: 'login_email', type: 'email', margin: 'dense' });
-    const [passwordInput, password, setPassword] = useTextInput('password', state, { label: 'Password', required: true, id: 'login_password', type: 'password', margin: 'dense' });
+    const [emailInput, email, setEmail] = useTextInput('email', formState, { label: 'Email Address', required: true, id: 'login_email', type: 'email', margin: 'dense' });
+    const [passwordInput, password, setPassword] = useTextInput('password', formState, { label: 'Password', required: true, id: 'login_password', type: 'password', margin: 'dense' });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -15,11 +17,11 @@ const LoginForm = () => {
         try {
             const response = await window.axios.post('/api/user/login', { email, password });
             if (response.status === 200) {
-                window.location.reload();
+                setState({ user: response.data.user });
             }
         } catch (error) {
             if (error.response && error.response.status === 422) {
-                setState(prev => ({ ...prev, errors: error.response.data.errors }));
+                setFormState(prev => ({ ...prev, errors: error.response.data.errors }));
             } else {
                 console.error(error);
             }

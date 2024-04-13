@@ -5,13 +5,14 @@ import { AppBar, Toolbar, Button } from '@mui/material';
 import { useAppState } from './AppStateContext';
 
 function TopNav() {
+    const { state, setState } = useAppState();
     const handleLogout = async (e) => {
         e.preventDefault();
 
         try {
             const response = await window.axios.post('/api/user/logout');
             if (response.status === 200) {
-                window.location.reload();
+                setState({ user: null });
             }
         } catch (error) {
             if (error.response.data && error.response.data.errors) {

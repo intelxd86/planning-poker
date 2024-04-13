@@ -34,6 +34,7 @@ class GameController extends Controller
             'spectators' => $spectators->map(function ($spectator) {
                 return  $spectator->user->uuid;
             }),
+            'owner' => $room->user->uuid,
         ];
     }
 

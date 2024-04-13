@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Box, Button, TextField, FormControl, InputLabel, Select, MenuItem, DialogContent, Dialog } from '@mui/material';
+import { useAppState } from './AppStateContext';
 
 function PokerRoom() {
+    const { state, setState } = useAppState();
     const [users, setUsers] = useState([]);
     const { uuid } = useParams();
     const [roomState, setRoomState] = useState({});
@@ -60,7 +62,7 @@ function PokerRoom() {
                     ))}
                 </ul>
             </div>
-            <CreateNewGame />
+            {roomState.owner === state.user ? <CreateNewGame /> : null}
         </>
     );
 };

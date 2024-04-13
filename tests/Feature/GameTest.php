@@ -150,7 +150,8 @@ class GameTest extends TestCase
         $response->assertExactJson([
             'spectators' => [User::where('id', $user->id)->first()->uuid],
             'game' => $game,
-            'room' => $room
+            'room' => $room,
+            'owner' => User::where('id', $user->id)->first()->uuid
         ]);
 
         $otherUser = User::factory()->create();
@@ -161,7 +162,8 @@ class GameTest extends TestCase
         $response->assertExactJson([
             'spectators' => [User::where('id', $user->id)->first()->uuid, User::where('id', $otherUser->id)->first()->uuid],
             'game' => $game,
-            'room' => $room
+            'room' => $room,
+            'owner' => User::where('id', $user->id)->first()->uuid
         ]);
 
         $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/spectator');
@@ -178,7 +180,8 @@ class GameTest extends TestCase
         $response->assertExactJson([
             'spectators' => [],
             'game' => $game,
-            'room' => $room
+            'room' => $room,
+            'owner' => User::where('id', $user->id)->first()->uuid
         ]);
 
         $this->assertDatabaseMissing('spectators', ['room_id' => Room::where('uuid', $room)->first()->id, 'user_id' => $user->id]);
