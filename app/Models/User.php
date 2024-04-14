@@ -44,6 +44,13 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    public function toArray(): array
+    {
+        return [
+            'uuid' => $this->uuid,
+        ];
+    }
+
     public function votes()
     {
         return $this->hasMany(Vote::class);

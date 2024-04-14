@@ -2,7 +2,7 @@ import ReactDOM from 'react-dom/client';
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Lobby from './Lobby';
-import PokerRoom from './Poker';
+import PokerRoom from './PokerRoom';
 import Layout from './Layout';
 import { SnackbarProvider } from 'notistack';
 import { AppStateProvider } from './AppStateContext';

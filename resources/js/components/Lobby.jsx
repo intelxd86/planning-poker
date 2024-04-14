@@ -80,6 +80,10 @@ export default function Lobby() {
 
     const { state, setState } = useAppState();
 
+    useEffect(() => {
+        setState(prevState => ({ ...prevState, room: null, users: [] }));
+    }, []);
+
     if (!state.user) {
         return (
             <LoginForm />

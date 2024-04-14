@@ -1,73 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Box, Button, TextField, FormControl, InputLabel, Select, MenuItem, DialogContent, Dialog } from '@mui/material';
-import { useAppState } from './AppStateContext';
 
-function PokerRoom() {
-    const { state, setState } = useAppState();
-    const [users, setUsers] = useState([]);
-    const { uuid } = useParams();
-    const [roomState, setRoomState] = useState({});
-
-    useEffect(() => {
-
-        const response = window.axios.get('/api/room/' + uuid);
-        response.then((response) => {
-            setRoomState(response.data);
-            console.log(response.data);
-        });
-
-        const channel = window.Echo.join('room.' + uuid);
-
-        channel
-            .here((currentUsers) => {
-                setUsers(currentUsers);
-            })
-            .joining((user) => {
-                setUsers((prevUsers) => {
-                    if (prevUsers.some((u) => u.id === user.id)) {
-                        return prevUsers;
-                    } else {
-                        return [...prevUsers, user];
-                    }
-                });
-            })
-            .leaving((user) => {
-                setUsers((prevUsers) => prevUsers.filter((u) => u.id !== user.id));
-            })
-            .listen('NewGameEvent', (event) => {
-                console.log(event);
-            })
-            .listen('GameEndEvent', (event) => {
-                console.log(event);
-            })
-            .listen('VoteEvent', (event) => {
-                console.log(event);
-            })
-            .listen('UserSpectatorEvent', (event) => {
-                console.log(event);
-            })
-            .error((error) => {
-                console.error(error);
-            });
-    }, []);
-
-    return (
-        <>
-            <div>
-                <h2>Online Users</h2>
-                <ul>
-                    {users.map((user) => (
-                        <li key={user.id}>{user.name}</li>
-                    ))}
-                </ul>
-            </div>
-            {roomState.owner === state.user ? <CreateNewGame /> : null}
-        </>
-    );
-};
-
-function CreateNewGame() {
+export default function CreateGameForm() {
     const { uuid } = useParams();
     const [gameName, setGameName] = useState('');
     const [deckUUID, setDeckUUID] = useState('');
@@ -101,7 +36,7 @@ function CreateNewGame() {
 
     return (
         <React.Fragment>
-            <Button variant="outlined" onClick={handleClickOpen}>
+            <Button color="inherit" onClick={handleClickOpen}>
                 Create new game
             </Button>
             <Dialog
@@ -166,5 +101,3 @@ function CreateNewGame() {
         </React.Fragment >
     )
 }
-
-export default PokerRoom
