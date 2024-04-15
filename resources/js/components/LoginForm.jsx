@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import useTextInput from './UseTextInput';
 import RegisterForm from './RegisterForm';
 import { useAppState } from './AppStateContext';
+import { snackbarNotify } from './Utils';
 
 const LoginForm = () => {
     const [formState, setFormState] = useState({ errors: {} });
@@ -20,6 +21,7 @@ const LoginForm = () => {
                 setState({ user: response.data.user });
             }
         } catch (error) {
+            snackbarNotify(error.response.data.errors)
             if (error.response && error.response.status === 422) {
                 setFormState(prev => ({ ...prev, errors: error.response.data.errors }));
             } else {

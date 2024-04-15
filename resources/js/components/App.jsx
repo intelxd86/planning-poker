@@ -13,7 +13,13 @@ if (document.getElementById('app')) {
     Index.render(
         <React.StrictMode>
             <AppStateProvider>
-                <SnackbarProvider>
+                <SnackbarProvider
+                    maxSnack={5}
+                    anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'center',
+                    }}
+                >
                     <Router>
                         <Routes>
                             <Route path="/" element={<Layout />} >

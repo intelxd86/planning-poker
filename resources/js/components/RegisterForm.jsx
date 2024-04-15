@@ -4,6 +4,7 @@ import useTextInput from './UseTextInput';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
+import { snackbarNotify } from './Utils';
 
 export default function RegisterForm() {
     const [state, setState] = useState({ errors: {} });
@@ -34,8 +35,8 @@ export default function RegisterForm() {
                 password_confirmation: passwordConfirmation
             });
         } catch (error) {
+            snackbarNotify(error.response.data.errors)
             if (error.response && error.response.status === 422) {
-                console.log(error);
                 setState(prev => ({ ...prev, errors: error.response.data.errors }));
             } else {
                 console.error(error);

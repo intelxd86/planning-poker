@@ -3,6 +3,7 @@ import { AppBar, Toolbar, Button } from '@mui/material';
 import { useAppState } from './AppStateContext';
 import CreateGameForm from './CreateGameForm';
 import { useNavigate } from 'react-router-dom';
+import { snackbarNotify } from './Utils';
 
 export default function Navigation() {
     const { state, setState } = useAppState();
@@ -17,7 +18,7 @@ export default function Navigation() {
             }
         } catch (error) {
             if (error.response.data && error.response.data.errors) {
-                // snackbar
+                snackbarNotify(error.response.data.errors)
             } else {
                 console.error(error);
             }
