@@ -84,12 +84,6 @@ export default function Lobby() {
         setState(prevState => ({ ...prevState, room: null, users: [] }));
     }, []);
 
-    if (!state.user) {
-        return (
-            <LoginForm />
-        )
-    }
-
     return (
         <Container maxWidth="sm">
             <CreateRoom />

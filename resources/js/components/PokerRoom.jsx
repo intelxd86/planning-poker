@@ -9,68 +9,75 @@ function PokerRoom() {
     const navigate = useNavigate();
 
     useEffect(() => {
+        const room = fetchRoom();
 
-        if (!state.user) {
-            navigate('/');
-            return
+        if (!room) {
+            return;
         }
 
-        const fetchRoomAndJoinChannel = async () => {
-            window.axios.get('/api/room/' + uuid)
-                .then((response) => {
-                    setState(prevState => ({ ...prevState, room: response.data }));
-                }).catch((error) => {
-                    console.error(error);
-                    navigate('/');
-                    return;
-                });
+        joinChannel();
 
-            const channel = window.Echo.join('room.' + uuid);
-
-            channel
-                .here((currentUsers) => {
-                    console.log('here', currentUsers);
-                    setState(prevState => ({ ...prevState, users: currentUsers }))
-                })
-                .joining((user) => {
-                    console.log('joining', user);
-                    setState(prevState => {
-                        if (prevState.users.some(u => u.id === user.id)) {
-                            return prevState;
-                        } else {
-                            return {
-                                ...prevState,
-                                users: [...prevState.users, user],
-                            };
-                        }
-                    });
-                })
-                .leaving((user) => {
-                    setState(prevState => ({
-                        ...prevState,
-                        users: prevState.users.filter(u => u.id !== user.id)
-                    }));
-                })
-                .listen('NewGameEvent', (event) => {
-                    console.log(event);
-                })
-                .listen('GameEndEvent', (event) => {
-                    console.log(event);
-                })
-                .listen('VoteEvent', (event) => {
-                    console.log(event);
-                })
-                .listen('UserSpectatorEvent', (event) => {
-                    console.log(event);
-                })
-                .error((error) => {
-                    console.error(error);
-                });
-        }
-
-        fetchRoomAndJoinChannel();
-
+        return () => {
+            window.Echo.leave('room.' + uuid);
+        };
     }, []);
+
+    const fetchRoom = async () => {
+        window.axios.get('/api/room/' + uuid)
+            .then((response) => {
+                setState(prevState => ({ ...prevState, room: response.data }));
+                return response.data;
+            }).catch((error) => {
+                console.error(error);
+                navigate('/');
+                return null;
+            });
+    }
+
+    const joinChannel = async () => {
+
+        const channel = window.Echo.join('room.' + uuid);
+
+        channel
+            .here((currentUsers) => {
+                console.log('here', currentUsers);
+                setState(prevState => ({ ...prevState, users: currentUsers }))
+            })
+            .joining((user) => {
+                console.log('joining', user);
+                setState(prevState => {
+                    if (prevState.users.some(u => u.id === user.id)) {
+                        return prevState;
+                    } else {
+                        return {
+                            ...prevState,
+                            users: [...prevState.users, user],
+                        };
+                    }
+                });
+            })
+            .leaving((user) => {
+                setState(prevState => ({
+                    ...prevState,
+                    users: prevState.users.filter(u => u.id !== user.id)
+                }));
+            })
+            .listen('NewGameEvent', (event) => {
+                console.log(event);
+            })
+            .listen('GameEndEvent', (event) => {
+                console.log(event);
+            })
+            .listen('VoteEvent', (event) => {
+                console.log(event);
+            })
+            .listen('UserSpectatorEvent', (event) => {
+                console.log(event);
+            })
+            .error((error) => {
+                console.error(error);
+            });
+    }
 
     return (
         <>

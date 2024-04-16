@@ -18,7 +18,10 @@ const LoginForm = () => {
         try {
             const response = await window.axios.post('/api/user/login', { email, password });
             if (response.status === 200) {
-                setState({ user: response.data.user });
+                setState(prevState => ({
+                    ...prevState,
+                    user: { 'uuid': response.data.user }
+                }))
             }
         } catch (error) {
             snackbarNotify(error.response.data.errors)
