@@ -58,16 +58,16 @@ class GameController extends Controller
     public function createGame(CreateGameRequest $request, Room $room)
     {
         if ($room->user_id !== $request->user()->id) {
-            abort(403);
+            return response()->json(['errors' => ['room' => ['You are not the owner of this room']]], 403);
         }
 
         if ($room->gameOngoing()) {
-            abort(403);
+            return response()->json(['errors' => ['room' => ['There is already a game ongoing in this room']]], 403);
         }
 
         $deck = Deck::where('uuid', $request->input('deck'))->first();
         if (!$deck) {
-            abort(403);
+            return response()->json(['errors' => ['deck' => ['Deck not found']]], 404);
         }
 
         $game = new Game();
@@ -88,11 +88,11 @@ class GameController extends Controller
         $deck = Deck::where('id', $game->deck_id)->firstOrFail();
 
         if (!in_array($value, $deck->getCards())) {
-            abort(403);
+            return response()->json(['errors' => ['value' => ['Invalid card value - it is not in the deck']]], 403);
         }
 
         if ($game->isEnded()) {
-            abort(403);
+            return response()->json(['errors' => ['game' => ['This game has already ended']]], 403);
         }
 
         $user = $request->user();
@@ -124,7 +124,7 @@ class GameController extends Controller
     public function revealVotes(Request $request, Room $room, Game $game)
     {
         if (!$game->isEnded() || !$game->canReveal()) {
-            abort(403);
+            return response()->json(['errors' => ['game' => ['Cannot reveal cards yet']]], 403);
         }
 
         $votes = Vote::where('game_id', $game->id)->with('user')->get();
@@ -146,11 +146,11 @@ class GameController extends Controller
     public function stopGame(Request $request, Room $room, Game $game)
     {
         if ($room->user_id !== $request->user()->id) {
-            abort(403);
+            return response()->json(['errors' => ['room' => ['You are not the owner of this room']]], 403);
         }
 
         if ($game->isEnded()) {
-            abort(403);
+            return response()->json(['errors' => ['game' => ['This game has already ended']]], 403);
         }
 
         $game->ended_at = now();
@@ -171,7 +171,7 @@ class GameController extends Controller
             ->first();
 
         if ($spectator) {
-            abort(403);
+            return response()->json(['errors' => ['spectator' => ['You are already a spectator in this room']]], 403);
         }
 
         $spectator = new Spectator();
@@ -194,7 +194,7 @@ class GameController extends Controller
             ->first();
 
         if (!$spectator) {
-            abort(403);
+            return response()->json(['errors' => ['spectator' => ['You are not a spectator in this room']]], 403);
         }
         $spectator->delete();
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Box, Button, TextField, FormControl, InputLabel, Select, MenuItem, DialogContent, Dialog } from '@mui/material';
+import { snackbarNotify } from './Utils';
 
 export default function CreateGameForm() {
     const { uuid } = useParams();
@@ -19,7 +20,11 @@ export default function CreateGameForm() {
 
     async function submitCreateGame(e) {
         e.preventDefault();
-        const response = await window.axios.post('/api/room/' + uuid + '/game', { name: gameName, deck: deckUUID });
+        try {
+            const response = await window.axios.post('/api/room/' + uuid + '/game', { name: gameName, deck: deckUUID });
+        } catch (error) {
+            snackbarNotify(error.response.data.errors)
+        }
     }
 
     function handleDeckChange(event) {
