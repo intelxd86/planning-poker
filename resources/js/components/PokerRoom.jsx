@@ -46,7 +46,7 @@ function PokerRoom() {
             .joining((user) => {
                 console.log('joining', user);
                 setState(prevState => {
-                    if (prevState.users.some(u => u.id === user.id)) {
+                    if (prevState.users.includes(user.uuid)) {
                         return prevState;
                     } else {
                         return {
@@ -59,7 +59,7 @@ function PokerRoom() {
             .leaving((user) => {
                 setState(prevState => ({
                     ...prevState,
-                    users: prevState.users.filter(u => u.id !== user.id)
+                    users: prevState.users.filter(u => u.uuid !== user.uuid)
                 }));
             })
             .listen('NewGameEvent', (event) => {
@@ -73,7 +73,32 @@ function PokerRoom() {
             })
             .listen('UserSpectatorEvent', (event) => {
                 console.log(event);
+                let userUuid = event.user;
+                if (event.spectator === true) {
+                    setState(prevState => {
+                        if (prevState.room.spectators.includes(userUuid)) {
+                            return prevState;
+                        } else {
+                            return {
+                                ...prevState,
+                                room: {
+                                    ...prevState.room,
+                                    spectators: [...prevState.room.spectators, userUuid]
+                                },
+                            };
+                        }
+                    });
+                } else {
+                    setState(prevState => ({
+                        ...prevState,
+                        room: {
+                            ...prevState.room,
+                            spectators: prevState.room.spectators.filter(u => { u.uuid !== userUuid })
+                        }
+                    }));
+                }
             })
+
             .error((error) => {
                 console.error(error);
             });
@@ -85,7 +110,7 @@ function PokerRoom() {
                 <h2>Online Users</h2>
                 <ul>
                     {state.users && state.users.map((user) => (
-                        <li key={user.id}>{user.name}</li>
+                        <li key={user.uuid}>{user.name}</li>
                     ))}
                 </ul>
             </div>
