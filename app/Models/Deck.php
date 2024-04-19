@@ -26,7 +26,7 @@ class Deck extends Model
 
     public function getCards(): array
     {
-        $cards = explode(',', $this->cards);
+        $cards = explode(',', str_replace(' ', '', $this->cards));
         return array_values(
             array_filter(
                 $cards,

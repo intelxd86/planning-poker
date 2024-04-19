@@ -8,6 +8,7 @@ use App\Events\UserSpectatorEvent;
 use App\Events\VoteEvent;
 use App\Http\Requests\CreateDeckRequest;
 use App\Http\Requests\CreateGameRequest;
+use App\Http\Requests\CreateRoomRequest;
 use App\Http\Requests\VoteRequest;
 use App\Models\Deck;
 use App\Models\Game;
@@ -23,6 +24,7 @@ class GameController extends Controller
     public function roomInfo(Request $request, Room $room)
     {
         $currentGame = Game::where('room_id', $room->id)
+            ->with('deck')
             ->whereNull('ended_at')
             ->first();
 
@@ -30,7 +32,10 @@ class GameController extends Controller
 
         return [
             'room' => $room->uuid,
-            'game' => $currentGame ? $currentGame->uuid : null,
+            'game' => $currentGame ? [
+                'uuid' => $currentGame->uuid,
+                'cards' => $currentGame->deck->getCards()
+            ] : null,
             'spectators' => $spectators->map(function ($spectator) {
                 return  $spectator->user->uuid;
             }),
@@ -42,14 +47,17 @@ class GameController extends Controller
     {
         $rooms = Room::where('user_id', $request->user()->id)->get();
 
-        return response()->json(['rooms' => $rooms->pluck('uuid')]);
+        return response()->json(['rooms' => $rooms->map(function ($room) {
+            return ['name' => $room->name, 'uuid' => $room->uuid];
+        })]);
     }
 
-    public function createRoom(Request $request)
+    public function createRoom(CreateRoomRequest $request)
     {
         $room = new Room();
         $room->uuid = Str::uuid();
         $room->user_id = $request->user()->id;
+        $room->name = $request->input('name');
         $room->save();
 
         return response()->json(['room' => $room->uuid]);

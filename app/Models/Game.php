@@ -28,15 +28,15 @@ class Game extends Model
 
     public function deck()
     {
-        return $this->hasOne(Deck::class);
+        return $this->belongsTo(Deck::class);
     }
 
-    public function isEnded() : bool
+    public function isEnded(): bool
     {
         return $this->ended_at !== null;
     }
 
-    public function canReveal() : bool
+    public function canReveal(): bool
     {
         return $this->reveal_at !== null && $this->reveal_at->isPast();
     }

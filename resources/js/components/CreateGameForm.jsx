@@ -97,7 +97,7 @@ export default function CreateGameForm() {
                             fullWidth
                             type="submit"
                         >
-                            Create new game
+                            Create game
                         </Button>
                     </Box>
                 </DialogContent>

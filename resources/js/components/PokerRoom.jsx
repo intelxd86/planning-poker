@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAppState } from './AppStateContext';
 import { useNavigate } from 'react-router-dom';
+import CardDeck from './CardDeck';
+import { Container } from '@mui/material';
 
 function PokerRoom() {
     const { state, setState } = useAppState();
@@ -105,7 +107,7 @@ function PokerRoom() {
     }
 
     return (
-        <>
+        <Container>
             <div>
                 <h2>Online Users</h2>
                 <ul>
@@ -114,7 +116,8 @@ function PokerRoom() {
                     ))}
                 </ul>
             </div>
-        </>
+            <CardDeck />
+        </Container>
     );
 };
 

@@ -30,7 +30,7 @@ class GameTest extends TestCase
         Event::fake();
 
         $user = User::factory()->create();
-        $response = $this->actingAs($user)->postJson('/api/room');
+        $response = $this->actingAs($user)->postJson('/api/room', ['name' => 'room']);
         $response->assertStatus(200);
         $response->assertJsonStructure(['room']);
 
@@ -129,7 +129,7 @@ class GameTest extends TestCase
         $this->assertDatabaseEmpty('spectators');
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->postJson('/api/room');
+        $response = $this->actingAs($user)->postJson('/api/room', ['name' => 'room']);
 
         $room = $response['room'];
 
@@ -219,7 +219,7 @@ class GameTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->postJson('/api/room');
+        $response = $this->actingAs($user)->postJson('/api/room', ['name' => 'room']);
 
         $room = $response['room'];
 

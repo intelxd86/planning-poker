@@ -5,6 +5,7 @@ import CreateGameForm from './CreateGameForm';
 import { useNavigate } from 'react-router-dom';
 import { snackbarNotify } from './Utils';
 import CreateRoom from './CreateRoom';
+import { Grid } from '@mui/material';
 
 export default function Navigation() {
     const { state, setState } = useAppState();
@@ -73,14 +74,20 @@ export default function Navigation() {
     return (
         <AppBar position="static">
             <Toolbar>
-                {state.room ? <Button color="inherit" onClick={() => navigate('/')}>Leave Room</Button> : null}
-                {(state.room && state.room.owner === state.user.uuid) ?
-                    state.room.game === null ? <CreateGameForm /> : <Button color="inherit" onClick={handleRevealVotes()}>Reveal Cards</Button>
-                    : null}
-                {state.room ?
-                    state.room.spectators.includes(state.user.uuid) ? <Button color="inherit" onClick={handleUnsetSpectator()}>Unset spectator</Button> : <Button color="inherit" onClick={handleSetSpectator()}>Become spectator</Button>
-                    : <CreateRoom />}
-                <Button color="inherit" onClick={handleLogout} >Logout</Button>
+                <Grid container fullWidth justifyContent="space-between">
+                    <Grid item>
+                        {(state.room && state.room.owner === state.user.uuid) ?
+                            state.room.game === null ? <CreateGameForm /> : <Button color="inherit" onClick={handleRevealVotes()}>Reveal cards</Button>
+                            : null}
+                        {state.room ?
+                            state.room.spectators.includes(state.user.uuid) ? <Button color="inherit" onClick={handleUnsetSpectator()}>Exit spectartor mode</Button> : <Button color="inherit" onClick={handleSetSpectator()}>Become spectator</Button>
+                            : <CreateRoom />}
+                    </Grid>
+                    <Grid item>
+                        {state.room ? <Button color="inherit" onClick={() => navigate('/')}>Leave room</Button> : null}
+                        <Button color="inherit" onClick={handleLogout} >Logout</Button>
+                    </Grid>
+                </Grid>
             </Toolbar>
         </AppBar >
     )
