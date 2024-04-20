@@ -61,7 +61,7 @@ export default function Navigation() {
         e.preventDefault();
 
         try {
-            await window.axios.post('/api/room/' + state.room.room + '/game/' + state.room.game + '/end');
+            await window.axios.post('/api/room/' + state.room.room + '/game/' + state.room.game.uuid + '/end');
         } catch (error) {
             if (error.response.data && error.response.data.errors) {
                 snackbarNotify(error.response.data.errors)

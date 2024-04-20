@@ -4,6 +4,7 @@ import { useAppState } from './AppStateContext';
 import { useNavigate } from 'react-router-dom';
 import CardDeck from './CardDeck';
 import { Container } from '@mui/material';
+import PokerTable from './PokerTable';
 
 function PokerRoom() {
     const { state, setState } = useAppState();
@@ -107,17 +108,10 @@ function PokerRoom() {
     }
 
     return (
-        <Container>
-            <div>
-                <h2>Online Users</h2>
-                <ul>
-                    {state.users && state.users.map((user) => (
-                        <li key={user.uuid}>{user.name}</li>
-                    ))}
-                </ul>
-            </div>
+        <>
+            <PokerTable />
             <CardDeck />
-        </Container>
+        </>
     );
 };
 

@@ -64,7 +64,6 @@ class GameTest extends TestCase
         $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/game/' . $game . '/vote', ['value' => 3]);
         Event::assertDispatched(function (VoteEvent $event) use ($game, $user) {
             return $event->game->uuid === $game &&
-                $event->value === 3 &&
                 $event->user->uuid === User::where('id', $user->id)->first()->uuid;
         });
         $response->assertStatus(200);
@@ -85,7 +84,6 @@ class GameTest extends TestCase
         $response = $this->actingAs($otherUser)->postJson('/api/room/' . $room . '/game/' . $game . '/vote', ['value' => 5]);
         Event::assertDispatched(function (VoteEvent $event) use ($game, $otherUser) {
             return $event->game->uuid === $game &&
-                $event->value === 5 &&
                 $event->user->uuid === User::where('id', $otherUser->id)->first()->uuid;
         });
         $response->assertStatus(200);

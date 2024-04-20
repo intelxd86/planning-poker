@@ -26,11 +26,10 @@ class VoteEvent implements ShouldBroadcastNow
     /**
      * Create a new event instance.
      */
-    public function __construct(Room $room, Game $game, int $value, User $user)
+    public function __construct(Room $room, Game $game, User $user)
     {
         $this->room = $room;
         $this->game = $game;
-        $this->value = $value;
         $this->user = $user;
     }
 
@@ -48,6 +47,6 @@ class VoteEvent implements ShouldBroadcastNow
 
     public function broadcastWith(): array
     {
-        return ['game' => $this->game->uuid, 'user' => $this->user->uuid, 'value' => $this->value];
+        return ['game' => $this->game->uuid, 'user' => $this->user->uuid];
     }
 }

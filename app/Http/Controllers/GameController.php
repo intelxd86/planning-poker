@@ -105,13 +105,22 @@ class GameController extends Controller
 
         $user = $request->user();
 
-        $vote = new Vote();
-        $vote->game_id = $game->id;
-        $vote->user_id = $user->id;
-        $vote->value = $request->input('value');
-        $vote->save();
+        $vote = Vote::where('game_id', $game->id)
+            ->where('user_id', $user->id)
+            ->first();
 
-        broadcast(new VoteEvent($room, $game, $value, $user));
+        if ($vote) {
+            $vote->value = $value;
+            $vote->save();
+        } else {
+            $vote = new Vote();
+            $vote->game_id = $game->id;
+            $vote->user_id = $user->id;
+            $vote->value = $request->input('value');
+            $vote->save();
+        }
+
+        broadcast(new VoteEvent($room, $game, $user));
 
         return response()->json(['success' => true]);
     }
