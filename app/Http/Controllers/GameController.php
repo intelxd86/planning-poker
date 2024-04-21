@@ -25,7 +25,7 @@ class GameController extends Controller
     {
         $currentGame = Game::where('room_id', $room->id)
             ->with('deck')
-            ->whereNull('ended_at')
+            ->orderBy('created_at', 'desc')
             ->first();
 
         $spectators = Spectator::where('room_id', $room->id)->with('user')->get();
@@ -34,7 +34,8 @@ class GameController extends Controller
             'room' => $room->uuid,
             'game' => $currentGame ? [
                 'uuid' => $currentGame->uuid,
-                'cards' => $currentGame->deck->getCards()
+                'cards' => $currentGame->deck->getCards(),
+                'name' => $currentGame->name,
             ] : null,
             'spectators' => $spectators->map(function ($spectator) {
                 return  $spectator->user->uuid;
@@ -82,6 +83,7 @@ class GameController extends Controller
         $game->uuid = Str::uuid();
         $game->deck_id = $deck->id;
         $game->room_id = $room->id;
+        $game->name = $request->input('name');
         $game->save();
 
         broadcast(new NewGameEvent($room, $game));
@@ -91,19 +93,30 @@ class GameController extends Controller
 
     public function vote(VoteRequest $request, Room $room, Game $game)
     {
+        if ($game->isEnded()) {
+            return response()->json(['errors' => ['game' => ['This game has already ended']]], 403);
+        }
+
         $value = $request->input('value');
+        $user = $request->user();
+
+        if (!$value) {
+            $vote = Vote::where('game_id', $game->id)
+                ->where('user_id', $user->id)
+                ->firstOrFail();
+
+            $vote->delete();
+
+            broadcast(new VoteEvent($room, $game, $user, false));
+
+            return response()->json(['success' => true]);
+        }
 
         $deck = Deck::where('id', $game->deck_id)->firstOrFail();
 
         if (!in_array($value, $deck->getCards())) {
             return response()->json(['errors' => ['value' => ['Invalid card value - it is not in the deck']]], 403);
         }
-
-        if ($game->isEnded()) {
-            return response()->json(['errors' => ['game' => ['This game has already ended']]], 403);
-        }
-
-        $user = $request->user();
 
         $vote = Vote::where('game_id', $game->id)
             ->where('user_id', $user->id)
@@ -118,9 +131,9 @@ class GameController extends Controller
             $vote->user_id = $user->id;
             $vote->value = $request->input('value');
             $vote->save();
-        }
 
-        broadcast(new VoteEvent($room, $game, $user));
+            broadcast(new VoteEvent($room, $game, $user, true));
+        }
 
         return response()->json(['success' => true]);
     }
@@ -130,11 +143,15 @@ class GameController extends Controller
         $votes = Vote::where('game_id', $game->id)->with('user')->get();
 
         return response()->json([
+            'uuid' => $game->uuid,
+            'name' => $game->name,
+            'cards' => $game->deck->getCards(),
             'voted' => $votes->map(function ($vote) {
                 return $vote->user->uuid;
             }),
             'ended' => $game->isEnded(),
             'reveal' => $game->canReveal(),
+            'user_vote_value' => $votes->firstWhere('user_id', $request->user()->id)->value ?? null,
         ]);
     }
 

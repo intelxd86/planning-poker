@@ -41,8 +41,6 @@ export default function Navigation() {
         }
     };
 
-
-
     const handleUnsetSpectator = () => async (e) => {
         e.preventDefault();
 
@@ -77,10 +75,10 @@ export default function Navigation() {
                 <Grid container fullWidth justifyContent="space-between">
                     <Grid item>
                         {(state.room && state.room.owner === state.user.uuid) ?
-                            state.room.game === null ? <CreateGameForm /> : <Button color="inherit" onClick={handleRevealVotes()}>Reveal cards</Button>
+                            state.room.game === null || state.room.game.reveal ? <CreateGameForm /> : <Button color="inherit" onClick={handleRevealVotes()}>Reveal cards</Button>
                             : null}
                         {state.room ?
-                            state.room.spectators.includes(state.user.uuid) ? <Button color="inherit" onClick={handleUnsetSpectator()}>Exit spectartor mode</Button> : <Button color="inherit" onClick={handleSetSpectator()}>Become spectator</Button>
+                            state.room.spectators && state.room.spectators.includes(state.user.uuid) ? <Button color="inherit" onClick={handleUnsetSpectator()}>Exit spectartor mode</Button> : <Button color="inherit" onClick={handleSetSpectator()}>Become spectator</Button>
                             : <CreateRoom />}
                     </Grid>
                     <Grid item>

@@ -40,6 +40,6 @@ Route::group(['prefix' => 'api'], function () {
 
 Route::fallback(function () {
     return view('welcome', ['initialState' => [
-        'user' => Auth::user() ? Auth::user()->toArray() : null
+        'user' => Auth::user() ? Auth::user()->toArray() : null,
     ]]);
 });

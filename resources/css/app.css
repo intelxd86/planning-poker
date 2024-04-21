@@ -7,3 +7,10 @@ body {
     min-height: 100vh;
     height: 100%;
 }
+
+.card-selected {
+    transition: 'transform 0.1s ease-in-out';
+    background-color: #a2dbff !important;
+    position: relative;
+    bottom: 5px;
+}

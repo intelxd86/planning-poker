@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('games', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
+            $table->string('name');
             $table->foreignId('deck_id')->constrained();
             $table->foreignId('room_id')->constrained();
             $table->timestamp('ended_at')->nullable();

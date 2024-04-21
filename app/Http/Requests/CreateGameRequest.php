@@ -23,6 +23,7 @@ class CreateGameRequest extends FormRequest
     {
         return [
             'deck' => ['required', 'uuid'],
+            'name' => ['required', 'string'],
         ];
     }
 

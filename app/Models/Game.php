@@ -9,7 +9,7 @@ class Game extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['room_id', 'uuid', 'deck_id', 'ended_at', 'reveal_at'];
+    protected $fillable = ['room_id', 'uuid', 'deck_id', 'ended_at', 'reveal_at', 'name'];
 
     protected $casts = [
         'ended_at' => 'datetime',

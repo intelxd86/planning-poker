@@ -17,6 +17,7 @@ export default function CreateRoom() {
             const response = await window.axios.post('/api/room', { name: roomName });
             if (response.status === 200) {
                 navigate('/room/' + response.data.room);
+                setOpen(false);
             }
         } catch (error) {
             if (error.response.data && error.response.data.errors) {

@@ -12,29 +12,63 @@ function PokerRoom() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const room = fetchRoom();
+        async function init() {
+            try {
+                const room = await fetchRoom();
+                if (!room) {
+                    navigate('/');
+                    return;
+                }
+                console.log(room)
+                if (room.game) {
+                    const game = await fetchGame(room.game.uuid);
+                    room.game = game
+                }
+                await joinChannel();
 
-        if (!room) {
-            return;
+                setState(prevState => ({
+                    ...prevState,
+                    room: {
+                        ...prevState.room,
+                        ...room
+                    }
+                }));
+            } catch (error) {
+                console.error(error);
+            }
         }
 
-        joinChannel();
+        init();
 
         return () => {
             window.Echo.leave('room.' + uuid);
         };
     }, []);
 
+    const fetchGame = async (game) => {
+        try {
+            const response = await window.axios.get('/api/room/' + uuid + '/game/' + game)
+            return response.data;
+        } catch (error) {
+            if (error.response && error.data && error.response.data.errors) {
+                snackbarNotify(error.response.data.errors)
+            }
+            console.error(error);
+            throw error;
+        }
+    }
+
     const fetchRoom = async () => {
-        window.axios.get('/api/room/' + uuid)
-            .then((response) => {
-                setState(prevState => ({ ...prevState, room: response.data }));
-                return response.data;
-            }).catch((error) => {
-                console.error(error);
-                navigate('/');
-                return null;
-            });
+        try {
+            const response = await window.axios.get('/api/room/' + uuid)
+            return response.data;
+        } catch (error) {
+            if (error.response && error.response.data && error.response.data.errors) {
+                snackbarNotify(error.response.data.errors)
+            }
+            console.error(error);
+            return null;
+        }
     }
 
     const joinChannel = async () => {
@@ -67,9 +101,35 @@ function PokerRoom() {
             })
             .listen('NewGameEvent', (event) => {
                 console.log(event);
+                fetchGame(event.game)
+                    .then(game => {
+                        setState(prevState => ({
+                            ...prevState,
+                            room: {
+                                ...prevState.room,
+                                game: game
+                            }
+                        }));
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
             })
             .listen('GameEndEvent', (event) => {
                 console.log(event);
+                fetchGame(event.game)
+                    .then(game => {
+                        setState(prevState => ({
+                            ...prevState,
+                            room: {
+                                ...prevState.room,
+                                game: game
+                            }
+                        }));
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
             })
             .listen('VoteEvent', (event) => {
                 console.log(event);

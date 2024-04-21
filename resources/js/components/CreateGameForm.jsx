@@ -22,6 +22,9 @@ export default function CreateGameForm() {
         e.preventDefault();
         try {
             const response = await window.axios.post('/api/room/' + uuid + '/game', { name: gameName, deck: deckUUID });
+            if (response.status === 200) {
+                setOpen(false);
+            }
         } catch (error) {
             snackbarNotify(error.response.data.errors)
         }
