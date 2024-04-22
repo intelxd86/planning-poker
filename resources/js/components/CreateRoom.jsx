@@ -4,6 +4,7 @@ import { Button } from '@mui/material';
 import useTextInput from './UseTextInput';
 import { Dialog, DialogContent, Box } from '@mui/material';
 import { snackbarNotify } from './Utils';
+import GroupIcon from '@mui/icons-material/Group';
 
 export default function CreateRoom() {
     const [formState, setFormState] = useState({ errors: {} });
@@ -40,7 +41,7 @@ export default function CreateRoom() {
 
     return (
         <React.Fragment>
-            <Button color="inherit" onClick={handleClickOpen}>
+            <Button color="inherit" onClick={handleClickOpen} startIcon={<GroupIcon />}>
                 Create new room
             </Button>
             <Dialog

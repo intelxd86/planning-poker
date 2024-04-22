@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useState } from 'react';
-import { Container } from '@mui/material';
+import { Container, Divider } from '@mui/material';
 import { useAppState } from './AppStateContext';
 import { Grid } from '@mui/material';
 import Button from '@mui/material/Button';
@@ -26,11 +26,12 @@ export default function CardDeck() {
     const theme = useTheme();
 
     useEffect(() => {
+        console.log('userVoteValue ', state.room?.game?.user_vote_value);
         const userVoteValue = state.room?.game?.user_vote_value;
-        if (userVoteValue) {
+        if (userVoteValue !== selectedCard) {
             setSelectedCard(userVoteValue);
         }
-    }, [state.room?.game?.user_vote_value]);
+    }, [state.room?.game]);
 
     const selectedCardStyle = {
         backgroundColor: lightBlue[50],
@@ -45,7 +46,11 @@ export default function CardDeck() {
 
     async function selectCard(card) {
 
-        if (card === selectedCard) {
+        if (state.room.game.ended) {
+            return;
+        }
+
+        if (String(card) === String(selectedCard)) {
             card = null;
         }
 
@@ -68,10 +73,9 @@ export default function CardDeck() {
 
     return (
         <>
+
             <Container sx={{ flexGrow: 0, mb: 5 }}>
-                <Typography variant="h6" gutterBottom textAlign={'center'}>
-                    Select card
-                </Typography>
+                <Divider orientation="horizontal" flexItem sx={{ my: 2 }}>Select your card</Divider>
                 <Grid
                     container
                     direction="row"
@@ -79,7 +83,6 @@ export default function CardDeck() {
                     alignItems="center"
                     spacing={3}
                 >
-
                     {state.room.game.cards.map((card) => (
                         <Grid item>
                             <PokerCard

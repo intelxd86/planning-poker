@@ -100,6 +100,11 @@ class GameController extends Controller
         $value = $request->input('value');
         $user = $request->user();
 
+        $spectator = Spectator::where('room_id', $room->id)->where('user_id', $user->id)->first();
+        if ($spectator) {
+            return response()->json(['errors' => ['spectator' => ['Spectators cannot vote']]], 403);
+        }
+
         if (!$value) {
             $vote = Vote::where('game_id', $game->id)
                 ->where('user_id', $user->id)
@@ -188,7 +193,7 @@ class GameController extends Controller
         }
 
         $game->ended_at = now();
-        $game->reveal_at = Carbon::now()->addSeconds(5);
+        $game->reveal_at = Carbon::now()->addSeconds(3);
         $game->save();
 
         broadcast(new GameEndEvent($room, $game));
@@ -215,6 +220,20 @@ class GameController extends Controller
 
         broadcast(new UserSpectatorEvent($room, $user, true));
 
+        $currentGame = Game::where('room_id', $room->id)
+            ->where('ended_at', null)
+            ->first();
+
+        if ($currentGame) {
+            $vote = Vote::where('game_id', $currentGame->id)
+                ->where('user_id', $user->id)
+                ->first();
+
+            if ($vote) {
+                $vote->delete();
+                broadcast(new VoteEvent($room, $currentGame, $user, false));
+            }
+        }
 
         return response()->json(['success' => true]);
     }

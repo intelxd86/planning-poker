@@ -24,7 +24,7 @@ export default function Layout() {
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
-                    minHeight: `calc(100vh - ${theme.mixins.toolbar.minHeight+8}px)`,
+                    minHeight: `calc(100vh - ${theme.mixins.toolbar.minHeight + 8}px)`,
                 }}
                 padding={0}
                 margin={0}

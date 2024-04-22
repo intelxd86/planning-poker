@@ -133,6 +133,36 @@ function PokerRoom() {
             })
             .listen('VoteEvent', (event) => {
                 console.log(event);
+                let userUuid = event.user;
+                if (event.voted === true) {
+                    setState(prevState => {
+                        if (prevState.room.game.voted.includes(userUuid)) {
+                            return prevState;
+                        } else {
+                            return {
+                                ...prevState,
+                                room: {
+                                    ...prevState.room,
+                                    game: {
+                                        ...prevState.room.game,
+                                        voted: [...prevState.room.game.voted, userUuid]
+                                    }
+                                },
+                            };
+                        }
+                    });
+                } else {
+                    setState(prevState => ({
+                        ...prevState,
+                        room: {
+                            ...prevState.room,
+                            game: {
+                                ...prevState.room.game,
+                                voted: prevState.room.game.voted.filter(u => { u.uuid !== userUuid })
+                            }
+                        }
+                    }));
+                }
             })
             .listen('UserSpectatorEvent', (event) => {
                 console.log(event);
@@ -146,7 +176,8 @@ function PokerRoom() {
                                 ...prevState,
                                 room: {
                                     ...prevState.room,
-                                    spectators: [...prevState.room.spectators, userUuid]
+                                    spectators: [...prevState.room.spectators, userUuid],
+                                    user_vote_value: userUuid === state.user.uuid ? null : prevState.room.user_vote_value
                                 },
                             };
                         }
@@ -160,6 +191,8 @@ function PokerRoom() {
                         }
                     }));
                 }
+
+
             })
 
             .error((error) => {
