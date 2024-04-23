@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import CardDeck from './CardDeck';
 import { Container } from '@mui/material';
 import PokerTable from './PokerTable';
+import RevealCountdown from './RevealCountdown';
 
 function PokerRoom() {
     const { state, setState } = useAppState();
@@ -19,7 +20,6 @@ function PokerRoom() {
                     navigate('/');
                     return;
                 }
-                console.log(room)
                 if (room.game) {
                     const game = await fetchGame(room.game.uuid);
                     room.game = game
@@ -77,11 +77,9 @@ function PokerRoom() {
 
         channel
             .here((currentUsers) => {
-                console.log('here', currentUsers);
                 setState(prevState => ({ ...prevState, users: currentUsers }))
             })
             .joining((user) => {
-                console.log('joining', user);
                 setState(prevState => {
                     if (prevState.users.includes(user.uuid)) {
                         return prevState;
@@ -100,7 +98,7 @@ function PokerRoom() {
                 }));
             })
             .listen('NewGameEvent', (event) => {
-                console.log(event);
+                console.log('NewGameEvent', event);
                 fetchGame(event.game)
                     .then(game => {
                         setState(prevState => ({
@@ -116,7 +114,7 @@ function PokerRoom() {
                     });
             })
             .listen('GameEndEvent', (event) => {
-                console.log(event);
+                console.log('GameEndEvent', event);
                 fetchGame(event.game)
                     .then(game => {
                         setState(prevState => ({
@@ -132,7 +130,7 @@ function PokerRoom() {
                     });
             })
             .listen('VoteEvent', (event) => {
-                console.log(event);
+                console.log('VoteEvent', event);
                 let userUuid = event.user;
                 if (event.voted === true) {
                     setState(prevState => {
@@ -165,7 +163,7 @@ function PokerRoom() {
                 }
             })
             .listen('UserSpectatorEvent', (event) => {
-                console.log(event);
+                console.log('UserSpectatorEvent', event);
                 let userUuid = event.user;
                 if (event.spectator === true) {
                     setState(prevState => {
@@ -194,7 +192,6 @@ function PokerRoom() {
 
 
             })
-
             .error((error) => {
                 console.error(error);
             });
@@ -202,6 +199,7 @@ function PokerRoom() {
 
     return (
         <>
+            <RevealCountdown />
             <PokerTable />
             <CardDeck />
         </>

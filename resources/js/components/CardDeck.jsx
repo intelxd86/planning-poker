@@ -16,7 +16,7 @@ import { blueGrey, lightBlue } from '@mui/material/colors';
 const PokerCard = styled(Card)({
     transition: 'transform 0.1s ease-in-out',
     '&:hover': {
-        transform: 'scale(1.05)'
+        transform: 'scale(1.1)'
     },
 });
 
@@ -26,7 +26,6 @@ export default function CardDeck() {
     const theme = useTheme();
 
     useEffect(() => {
-        console.log('userVoteValue ', state.room?.game?.user_vote_value);
         const userVoteValue = state.room?.game?.user_vote_value;
         if (userVoteValue !== selectedCard) {
             setSelectedCard(userVoteValue);
@@ -40,7 +39,7 @@ export default function CardDeck() {
         transition: 'transform 0.1s ease-in-out',
     };
 
-    if (!state.room || !state.room.game) {
+    if (!state.room?.game || (state.room.game.ended === true && state.room.game.reveal === true)) {
         return null;
     }
 
@@ -95,6 +94,7 @@ export default function CardDeck() {
                                     sx={{ minHeight: '100px' }}
                                     onClick={() => selectCard(card)}
                                     key={card}
+                                    size='large'
                                 >
                                     {card}
                                 </Button>

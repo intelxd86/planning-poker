@@ -40,4 +40,22 @@ class Game extends Model
     {
         return $this->reveal_at !== null && $this->reveal_at->isPast();
     }
+
+    public function getResult(): array
+    {
+        $votes = Vote::where('game_id', $this->id)->with('user')->get();
+
+        return [
+            'votes' => $votes->map(function ($vote) {
+                return [
+                    'value' => $vote->value,
+                    'user' => $vote->user->uuid,
+                ];
+            }),
+            'average' => $votes->avg('value'),
+            'median' => $votes->median('value'),
+            'min' => $votes->min('value'),
+            'max' => $votes->max('value'),
+        ];
+    }
 }

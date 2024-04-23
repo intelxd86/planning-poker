@@ -157,6 +157,7 @@ class GameController extends Controller
             'ended' => $game->isEnded(),
             'reveal' => $game->canReveal(),
             'user_vote_value' => $votes->firstWhere('user_id', $request->user()->id)->value ?? null,
+            'result' => $game->canReveal() ? $game->getResult() : null,
         ]);
     }
 
@@ -166,20 +167,9 @@ class GameController extends Controller
             return response()->json(['errors' => ['game' => ['Cannot reveal cards yet']]], 403);
         }
 
-        $votes = Vote::where('game_id', $game->id)->with('user')->get();
+        $result = $game->getResult();
 
-        return response()->json([
-            'votes' => $votes->map(function ($vote) {
-                return [
-                    'value' => $vote->value,
-                    'user' => $vote->user->uuid,
-                ];
-            }),
-            'average' => $votes->avg('value'),
-            'median' => $votes->median('value'),
-            'min' => $votes->min('value'),
-            'max' => $votes->max('value'),
-        ]);
+        return response()->json($result);
     }
 
     public function stopGame(Request $request, Room $room, Game $game)
@@ -190,6 +180,12 @@ class GameController extends Controller
 
         if ($game->isEnded()) {
             return response()->json(['errors' => ['game' => ['This game has already ended']]], 403);
+        }
+
+        $votes = Vote::where('game_id', $game->id)->count();
+
+        if ($votes === 0) {
+            return response()->json(['errors' => ['game' => ['No one has voted yet']]], 403);
         }
 
         $game->ended_at = now();

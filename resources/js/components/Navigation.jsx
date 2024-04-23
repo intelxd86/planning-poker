@@ -75,14 +75,14 @@ export default function Navigation() {
     }
 
     const isRoomOwner = state.room?.owner === state.user.uuid;
-    const showCreateGameForm = state.room && (state.room.game === null || state.room.game.reveal);
+    const showCreateGameForm = state.room ? state.room.game ? state.room.game.result === null ? false : true : true : false;
     const isSpectator = state.room?.spectators?.includes(state.user.uuid);
     const revealDisabled = state.room?.game?.reveal === false && state.room?.game?.ended === true;
 
     return (
         <AppBar position="static">
             <Toolbar>
-                <Grid container fullWidth justifyContent="space-between">
+                <Grid container justifyContent="space-between">
                     <Grid item>
                         {isRoomOwner && (
                             showCreateGameForm ?

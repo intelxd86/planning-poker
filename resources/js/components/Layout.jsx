@@ -19,7 +19,6 @@ export default function Layout() {
         <>
             <Navigation />
             <Container
-                fullWidth
                 sx={{
                     display: 'flex',
                     flexDirection: 'column',
