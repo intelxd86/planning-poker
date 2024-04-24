@@ -8,6 +8,11 @@ import Face6Icon from '@mui/icons-material/Face6';
 import { CheckCircle } from '@mui/icons-material';
 import HelpIcon from '@mui/icons-material/Help';
 import Divider from '@mui/material/Divider';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import { light } from '@mui/material/styles/createPalette';
+import { blueGrey, grey, indigo, lightBlue, purple } from '@mui/material/colors';
+
 
 function Test() {
     return (
@@ -20,13 +25,13 @@ export default function PokerTable() {
     const { state, setState } = useAppState();
 
     const fakeUsers = [
-        { uuid: 1, name: 'John Doe', voted: true },
-        { uuid: 2, name: 'Jane Doe', voted: false },
-        { uuid: 3, name: 'Alice', voted: true },
-        { uuid: 4, name: 'Bob', voted: false },
-        { uuid: 5, name: 'Charlie', voted: true },
-        { uuid: 6, name: 'David', voted: false },
-        { uuid: 7, name: 'Eve', voted: true }
+        { uuid: 1, name: 'Johnathan.Doe', voted: true },
+        { uuid: 2, name: 'Janet.Doe', voted: false },
+        { uuid: 3, name: 'Alicia.Keys', voted: true },
+        { uuid: 4, name: 'Robert.Bob', voted: false },
+        { uuid: 5, name: 'Charles.Charlie', voted: true },
+        { uuid: 6, name: 'Davidson.Dave', voted: false },
+        { uuid: 7, name: 'Evelyn.Eve', voted: true }
     ];
 
     return (
@@ -40,21 +45,37 @@ export default function PokerTable() {
                 spacing={3}
             >
                 {
-                    //fakeUsers.map((user) => (
+
                     state.users && state.users.map((user) => (
-                        <Grid item key={user.uuid} >
-
+                        <Grid
+                            item
+                            key={user.uuid}
+                            justifyContent="center"
+                            alignItems="center"
+                            textAlign={'center'}
+                        >
+                            <Card
+                                sx={{
+                                    width: '64px',
+                                    height: '100px',
+                                    m: '0 auto',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    backgroundColor: state.room?.game?.voted.includes(user.uuid) ? indigo[50] : blueGrey[50],
+                                    transition: 'all 0.1s ease-in-out',
+                                }}
+                            >
+                                {state.room?.game?.voted.includes(user.uuid) ? <CheckCircle sx={{ fontSize: '40px' }} color='primary' /> : <HelpIcon fontSize='large' />}
+                            </Card>
                             <Chip
-                                color={user.voted = state.room?.game?.voted.includes(state.user.uuid) ? 'primary' : 'default'}
-                                key={user.uuid}
-                                deleteIcon={state.room?.game?.voted.includes(state.user.uuid) ? <CheckCircle /> : <HelpIcon fontSize="large" />}
-                                onDelete={() => { }}
-                                icon={<Face6Icon/>}
+                                icon={<Face6Icon />}
                                 label={user.name}
+                                sx={{ mt: 1 }}
                             />
-
                         </Grid>
                     ))
+
                 }
             </Grid>
         </Container >

@@ -14,7 +14,7 @@ import { useTheme } from '@mui/material/styles';
 import { blueGrey, lightBlue } from '@mui/material/colors';
 
 const PokerCard = styled(Card)({
-    transition: 'transform 0.1s ease-in-out',
+    transition: 'all 0.1s ease-in-out',
     '&:hover': {
         transform: 'scale(1.1)'
     },
@@ -30,13 +30,13 @@ export default function CardDeck() {
         if (userVoteValue !== selectedCard) {
             setSelectedCard(userVoteValue);
         }
-    }, [state.room?.game]);
+    }, [state.room?.game?.user_vote_value]);
 
     const selectedCardStyle = {
         backgroundColor: lightBlue[50],
         position: 'relative',
         bottom: '5px',
-        transition: 'transform 0.1s ease-in-out',
+        transition: 'all 0.1s ease-in-out',
     };
 
     if (!state.room?.game || (state.room.game.ended === true && state.room.game.reveal === true)) {
@@ -58,6 +58,19 @@ export default function CardDeck() {
 
             if (response.status === 200) {
                 setSelectedCard(card);
+                setState(prev => (
+                    {
+                        ...prev,
+                        room:
+                        {
+                            ...prev.room,
+                            game:
+                            {
+                                ...prev.room.game,
+                                user_vote_value: card
+                            }
+                        }
+                    }));
             }
 
         } catch (error) {
@@ -83,17 +96,15 @@ export default function CardDeck() {
                     spacing={3}
                 >
                     {state.room.game.cards.map((card) => (
-                        <Grid item>
+                        <Grid item
+                            key={card}>
                             <PokerCard
-                                justifyContent='center'
-                                key={card}
                                 style={String(card) === String(selectedCard) ? selectedCardStyle : {}}
                             >
                                 <Button
                                     fullWidth
                                     sx={{ minHeight: '100px' }}
                                     onClick={() => selectCard(card)}
-                                    key={card}
                                     size='large'
                                 >
                                     {card}

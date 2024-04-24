@@ -175,7 +175,10 @@ function PokerRoom() {
                                 room: {
                                     ...prevState.room,
                                     spectators: [...prevState.room.spectators, userUuid],
-                                    user_vote_value: userUuid === state.user.uuid ? null : prevState.room.user_vote_value
+                                    game: {
+                                        ...prevState.room.game,
+                                        user_vote_value: String(userUuid) === String(state.user.uuid) ? null : prevState.room.game.user_vote_value
+                                    }
                                 },
                             };
                         }
