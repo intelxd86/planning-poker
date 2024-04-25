@@ -74,8 +74,8 @@ export default function Navigation() {
         }
     }
 
-    const isRoomOwner = state.room?.owner === state.user.uuid;
-    const showCreateGameForm = state.room ? state.room.game ? state.room.game.result === null ? false : true : true : false;
+    const isRoomOwner = state.room?.owner.uuid === state.user.uuid || false;
+    const showCreateGameForm = !state.room || !state.room.game || state.room.game.result !== null;
     const isSpectator = state.room?.spectators?.includes(state.user.uuid);
     const revealDisabled = state.room?.game?.reveal === false && state.room?.game?.ended === true;
 

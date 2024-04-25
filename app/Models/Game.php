@@ -46,12 +46,10 @@ class Game extends Model
         $votes = Vote::where('game_id', $this->id)->with('user')->get();
 
         return [
-            'votes' => $votes->map(function ($vote) {
-                return [
-                    'value' => $vote->value,
-                    'user' => $vote->user->uuid,
-                ];
-            }),
+            'votes' => $votes->reduce(function ($carry, $vote) {
+                $carry[$vote->user->uuid] = $vote->value;
+                return $carry;
+            }, []),
             'average' => $votes->avg('value'),
             'median' => $votes->median('value'),
             'min' => $votes->min('value'),

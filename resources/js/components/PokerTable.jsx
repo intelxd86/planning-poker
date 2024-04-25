@@ -1,4 +1,5 @@
 import React from 'react';
+import { useEffect, useState } from 'react';
 import { useAppState } from './AppStateContext';
 import Grid from '@mui/material/Grid';
 import Container from '@mui/material/Container';
@@ -23,16 +24,6 @@ function Test() {
 
 export default function PokerTable() {
     const { state, setState } = useAppState();
-
-    const fakeUsers = [
-        { uuid: 1, name: 'Johnathan.Doe', voted: true },
-        { uuid: 2, name: 'Janet.Doe', voted: false },
-        { uuid: 3, name: 'Alicia.Keys', voted: true },
-        { uuid: 4, name: 'Robert.Bob', voted: false },
-        { uuid: 5, name: 'Charles.Charlie', voted: true },
-        { uuid: 6, name: 'Davidson.Dave', voted: false },
-        { uuid: 7, name: 'Evelyn.Eve', voted: true }
-    ];
 
     return (
         <Container sx={{ flexGrow: 1, overflow: 'auto', mb: 2 }}>
@@ -62,11 +53,16 @@ export default function PokerTable() {
                                     display: 'flex',
                                     justifyContent: 'center',
                                     alignItems: 'center',
-                                    backgroundColor: state.room?.game?.voted.includes(user.uuid) ? indigo[50] : blueGrey[50],
+                                    backgroundColor: state.room?.game?.voted.some(u => u.uuid === user.uuid) ? indigo[50] : blueGrey[50],
                                     transition: 'all 0.1s ease-in-out',
                                 }}
                             >
-                                {state.room?.game?.voted.includes(user.uuid) ? <CheckCircle sx={{ fontSize: '40px' }} color='primary' /> : <HelpIcon fontSize='large' />}
+                                {state.room?.game?.voted.some(u => u.uuid === user.uuid) ?
+                                    state.room?.game?.result?.votes !== null && state.room?.game?.result?.votes.hasOwnProperty(user.uuid)
+                                        ? <Typography sx={{ fontSize: '40px' }} color={'primary'}>
+                                            {state.room?.game?.result?.votes[user.uuid]}
+                                        </Typography> : <CheckCircle sx={{ fontSize: '40px' }} color='primary' />
+                                    : <HelpIcon fontSize='large' />}
                             </Card>
                             <Chip
                                 icon={<Face6Icon />}

@@ -34,13 +34,14 @@ class GameController extends Controller
             'room' => $room->uuid,
             'game' => $currentGame ? [
                 'uuid' => $currentGame->uuid,
-                'cards' => $currentGame->deck->getCards(),
-                'name' => $currentGame->name,
             ] : null,
             'spectators' => $spectators->map(function ($spectator) {
                 return  $spectator->user->uuid;
             }),
-            'owner' => $room->user->uuid,
+            'owner' => [
+                'uuid' => $room->user->uuid,
+                'name' => $room->user->name,
+            ],
         ];
     }
 
@@ -147,13 +148,18 @@ class GameController extends Controller
     {
         $votes = Vote::where('game_id', $game->id)->with('user')->get();
 
+        $voted = $votes->map(function ($vote) {
+            return [
+                'uuid' => $vote->user->uuid,
+                'name' => $vote->user->name,
+            ];
+        });
+
         return response()->json([
             'uuid' => $game->uuid,
             'name' => $game->name,
             'cards' => $game->deck->getCards(),
-            'voted' => $votes->map(function ($vote) {
-                return $vote->user->uuid;
-            }),
+            'voted' => $voted,
             'ended' => $game->isEnded(),
             'reveal' => $game->canReveal(),
             'user_vote_value' => $votes->firstWhere('user_id', $request->user()->id)->value ?? null,

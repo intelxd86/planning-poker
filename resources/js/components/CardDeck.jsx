@@ -39,10 +39,6 @@ export default function CardDeck() {
         transition: 'all 0.1s ease-in-out',
     };
 
-    if (!state.room?.game || (state.room.game.ended === true && state.room.game.reveal === true)) {
-        return null;
-    }
-
     async function selectCard(card) {
 
         if (state.room.game.ended) {
@@ -85,35 +81,36 @@ export default function CardDeck() {
 
     return (
         <>
-
-            <Container sx={{ flexGrow: 0, mb: 5 }}>
-                <Divider orientation="horizontal" flexItem sx={{ my: 2 }}>Select your card</Divider>
-                <Grid
-                    container
-                    direction="row"
-                    justifyContent="center"
-                    alignItems="center"
-                    spacing={3}
-                >
-                    {state.room.game.cards.map((card) => (
-                        <Grid item
-                            key={card}>
-                            <PokerCard
-                                style={String(card) === String(selectedCard) ? selectedCardStyle : {}}
-                            >
-                                <Button
-                                    fullWidth
-                                    sx={{ minHeight: '100px' }}
-                                    onClick={() => selectCard(card)}
-                                    size='large'
+            {!state.room?.game || (state.room.game.ended === true && state.room.game.reveal === true) ? null :
+                <Container sx={{ flexGrow: 0, mb: 5 }}>
+                    <Divider orientation="horizontal" flexItem sx={{ my: 2 }}>Select your card</Divider>
+                    <Grid
+                        container
+                        direction="row"
+                        justifyContent="center"
+                        alignItems="center"
+                        spacing={3}
+                    >
+                        {state.room.game.cards.map((card) => (
+                            <Grid item
+                                key={card}>
+                                <PokerCard
+                                    style={String(card) === String(selectedCard) ? selectedCardStyle : {}}
                                 >
-                                    {card}
-                                </Button>
-                            </PokerCard>
-                        </Grid>
-                    ))}
-                </Grid>
-            </Container>
+                                    <Button
+                                        fullWidth
+                                        sx={{ minHeight: '100px' }}
+                                        onClick={() => selectCard(card)}
+                                        size='large'
+                                    >
+                                        {card}
+                                    </Button>
+                                </PokerCard>
+                            </Grid>
+                        ))}
+                    </Grid>
+                </Container>
+            }
         </>
     )
 }

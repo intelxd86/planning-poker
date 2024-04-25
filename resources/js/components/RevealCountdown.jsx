@@ -36,7 +36,8 @@ function RevealCountdown() {
                                 ...prevState.room,
                                 game: {
                                     ...prevState.room.game,
-                                    result: response.data.result,
+                                    result: response.data,
+                                    reveal: true,
                                 }
                             }
                         }))

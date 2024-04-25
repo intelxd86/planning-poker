@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Broadcast;
 */
 
 Broadcast::channel('room.{uuid}', function ($user, $uuid) {
-    if (Room::where('uuid', $uuid)->where('user_id', $user->id)->exists()) {
-        return ['uuid' => $user->uuid, 'name' => $user->email];
+    if (Room::where('uuid', $uuid)->exists()) {
+        return ['uuid' => $user->uuid, 'name' => $user->name];
     }
 });

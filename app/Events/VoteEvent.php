@@ -48,6 +48,13 @@ class VoteEvent implements ShouldBroadcastNow
 
     public function broadcastWith(): array
     {
-        return ['game' => $this->game->uuid, 'user' => $this->user->uuid, 'voted' => $this->voted];
+        return [
+            'game' => $this->game->uuid,
+            'user' => [
+                'uuid' => $this->user->uuid,
+                'name' => $this->user->name
+            ],
+            'voted' => $this->voted
+        ];
     }
 }

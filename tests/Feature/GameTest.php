@@ -149,7 +149,10 @@ class GameTest extends TestCase
             'spectators' => [User::where('id', $user->id)->first()->uuid],
             'game' => $game,
             'room' => $room,
-            'owner' => User::where('id', $user->id)->first()->uuid
+            'owner' => [
+                'uuid' => User::where('id', $user->id)->first()->uuid,
+                'name' => User::where('id', $user->id)->first()->name
+            ]
         ]);
 
         $otherUser = User::factory()->create();
@@ -161,7 +164,10 @@ class GameTest extends TestCase
             'spectators' => [User::where('id', $user->id)->first()->uuid, User::where('id', $otherUser->id)->first()->uuid],
             'game' => $game,
             'room' => $room,
-            'owner' => User::where('id', $user->id)->first()->uuid
+            'owner' => [
+                'uuid' => User::where('id', $user->id)->first()->uuid,
+                'name' => User::where('id', $user->id)->first()->name
+            ]
         ]);
 
         $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/spectator');
@@ -179,7 +185,10 @@ class GameTest extends TestCase
             'spectators' => [],
             'game' => $game,
             'room' => $room,
-            'owner' => User::where('id', $user->id)->first()->uuid
+            'owner' => [
+                'uuid' => User::where('id', $user->id)->first()->uuid,
+                'name' => User::where('id', $user->id)->first()->name
+            ]
         ]);
 
         $this->assertDatabaseMissing('spectators', ['room_id' => Room::where('uuid', $room)->first()->id, 'user_id' => $user->id]);

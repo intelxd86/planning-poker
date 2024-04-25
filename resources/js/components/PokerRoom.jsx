@@ -31,7 +31,8 @@ function PokerRoom() {
                     room: {
                         ...prevState.room,
                         ...room
-                    }
+                    },
+                    users: room.game?.voted || []
                 }));
             } catch (error) {
                 console.error(error);
@@ -77,25 +78,47 @@ function PokerRoom() {
 
         channel
             .here((currentUsers) => {
-                setState(prevState => ({ ...prevState, users: currentUsers }))
+                setState(prevState => {
+                    const existingUuids = new Set(prevState.users.map(user => user.uuid));
+                    const newUsers = currentUsers.filter(user => !existingUuids.has(user.uuid));
+
+                    return {
+                        ...prevState,
+                        users: [...prevState.users, ...newUsers],
+                        ws_users: currentUsers
+                    };
+                });
+
             })
             .joining((user) => {
                 setState(prevState => {
-                    if (prevState.users.includes(user.uuid)) {
+                    if (prevState.users.some(u => u.uuid === user.uuid)) {
                         return prevState;
                     } else {
                         return {
                             ...prevState,
                             users: [...prevState.users, user],
+                            ws_users: [...prevState.ws_users, user]
                         };
                     }
                 });
             })
             .leaving((user) => {
-                setState(prevState => ({
-                    ...prevState,
-                    users: prevState.users.filter(u => u.uuid !== user.uuid)
-                }));
+                setState(prevState => {
+                    const userVoted = prevState.room?.game?.voted?.some(v => v.uuid === user.uuid) || false;
+
+                    if (!userVoted) {
+                        return {
+                            ...prevState,
+                            users: prevState.users.filter(u => u.uuid !== user.uuid)
+                        };
+                    }
+
+                    return {
+                        ...prevState,
+                        ws_users: prevState.ws_users.filter(u => u.uuid !== user.uuid)
+                    };
+                });
             })
             .listen('NewGameEvent', (event) => {
                 console.log('NewGameEvent', event);
@@ -106,7 +129,8 @@ function PokerRoom() {
                             room: {
                                 ...prevState.room,
                                 game: game
-                            }
+                            },
+                            users: prevState.ws_users
                         }));
                     })
                     .catch(error => {
@@ -131,10 +155,10 @@ function PokerRoom() {
             })
             .listen('VoteEvent', (event) => {
                 console.log('VoteEvent', event);
-                let userUuid = event.user;
+                let user = event.user;
                 if (event.voted === true) {
                     setState(prevState => {
-                        if (prevState.room.game.voted.includes(userUuid)) {
+                        if (prevState.room.game.voted.some(u => u.uuid === user)) {
                             return prevState;
                         } else {
                             return {
@@ -143,7 +167,7 @@ function PokerRoom() {
                                     ...prevState.room,
                                     game: {
                                         ...prevState.room.game,
-                                        voted: [...prevState.room.game.voted, userUuid]
+                                        voted: [...prevState.room.game.voted, user]
                                     }
                                 },
                             };
@@ -156,7 +180,7 @@ function PokerRoom() {
                             ...prevState.room,
                             game: {
                                 ...prevState.room.game,
-                                voted: prevState.room.game.voted.filter(u => { u.uuid !== userUuid })
+                                voted: prevState.room.game.voted.filter(u => u.uuid !== user.uuid)
                             }
                         }
                     }));
