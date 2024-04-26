@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import CardDeck from './CardDeck';
 import { Container } from '@mui/material';
 import PokerTable from './PokerTable';
-import RevealCountdown from './RevealCountdown';
+import Countdown from './Countdown';
 
 function PokerRoom() {
     const { state, setState } = useAppState();
@@ -22,6 +22,7 @@ function PokerRoom() {
                 }
                 if (room.game) {
                     const game = await fetchGame(room.game.uuid);
+                    game.reveal_countdown = false;
                     room.game = game
                 }
                 await joinChannel();
@@ -141,6 +142,7 @@ function PokerRoom() {
                 console.log('GameEndEvent', event);
                 fetchGame(event.game)
                     .then(game => {
+                        game.reveal_countdown = true;
                         setState(prevState => ({
                             ...prevState,
                             room: {
@@ -224,9 +226,47 @@ function PokerRoom() {
             });
     }
 
+    const handleRevealCountdown = async () => {
+
+        try {
+            const response = await window.axios.post('/api/room/' + state.room.room + '/game/' + state.room.game.uuid + '/reveal')
+            if (response.status === 200) {
+                setState(prevState => ({
+                    ...prevState,
+                    room: {
+                        ...prevState.room,
+                        game: {
+                            ...prevState.room.game,
+                            result: response.data,
+                            reveal: true,
+                            reveal_countdown: false
+                        }
+                    }
+                }))
+            }
+        } catch (error) {
+            if (error.response && error.response.status === 422) {
+                snackbarNotify(error.response.data.errors)
+            } else {
+                console.error(error);
+            }
+        }
+    }
+
+    useEffect(() => {
+        console.log('state', state);
+    }, [state]);
+
     return (
         <>
-            <RevealCountdown />
+            {state.room?.game?.reveal_countdown === true ?
+                <Countdown
+                    duration={3}
+                    sx={{
+                        transition: 'all 0.5s ease-in-out',
+                    }}
+                    onComplete={handleRevealCountdown} />
+                : null}
             <PokerTable />
             <CardDeck />
         </>

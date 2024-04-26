@@ -43,11 +43,11 @@ class GameTest extends TestCase
 
         $deck = Deck::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($otherUser)->postJson('/api/room/' . $room . '/game', ['deck' => $deck->uuid]);
+        $response = $this->actingAs($otherUser)->postJson('/api/room/' . $room . '/game', ['name' => 'Test room', 'deck' => $deck->uuid]);
         Event::assertNotDispatched(NewGameEvent::class);
         $response->assertStatus(403);
 
-        $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/game', ['deck' => $deck->uuid]);
+        $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/game', ['name' => 'Test room', 'deck' => $deck->uuid]);
         Event::assertDispatched(function (NewGameEvent $event) use ($room) {
             return $event->room->uuid === $room;
         });
@@ -73,9 +73,19 @@ class GameTest extends TestCase
         $response = $this->actingAs($user)->getJson('/api/room/' . $room . '/game/' . $game);
         $response->assertStatus(200);
         $response->assertExactJson([
-            'voted' => [User::where('id', $user->id)->first()->uuid],
+            'voted' => [
+                [
+                    'uuid' => User::where('id', $user->id)->first()->uuid,
+                    'name' => User::where('id', $user->id)->first()->name,
+                ]
+            ],
             'ended' => false,
-            'reveal' => false
+            'reveal' => false,
+            'result' => null,
+            'user_vote_value' => 3,
+            'uuid' => $game,
+            'cards' => Deck::where('uuid', $deck->uuid)->first()->getCards(),
+            'name' => 'Test room'
         ]);
 
         $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/game/' . $game . '/reveal');
@@ -91,9 +101,23 @@ class GameTest extends TestCase
         $response = $this->actingAs($otherUser)->getJson('/api/room/' . $room . '/game/' . $game);
         $response->assertStatus(200);
         $response->assertExactJson([
-            'voted' => [User::where('id', $user->id)->first()->uuid, User::where('id', $otherUser->id)->first()->uuid],
+            'voted' => [
+                [
+                    'uuid' => User::where('id', $user->id)->first()->uuid,
+                    'name' => User::where('id', $user->id)->first()->name,
+                ],
+                [
+                    'uuid' => User::where('id', $otherUser->id)->first()->uuid,
+                    'name' => User::where('id', $otherUser->id)->first()->name,
+                ]
+            ],
             'ended' => false,
-            'reveal' => false
+            'reveal' => false,
+            'result' => null,
+            'user_vote_value' => 5,
+            'uuid' => $game,
+            'cards' => Deck::where('uuid', $deck->uuid)->first()->getCards(),
+            'name' => 'Test room'
         ]);
 
         $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/game/' . $game . '/end');
@@ -111,8 +135,8 @@ class GameTest extends TestCase
         $response->assertStatus(200);
         $response->assertExactJson([
             'votes' => [
-                ['value' => 3, 'user' => User::where('id', $user->id)->first()->uuid],
-                ['value' => 5, 'user' => User::where('id', $otherUser->id)->first()->uuid]
+                User::where('id', $user->id)->first()->uuid => 3,
+                User::where('id', $otherUser->id)->first()->uuid => 5
             ],
             'average' => 4,
             'median' => 4,
@@ -138,7 +162,7 @@ class GameTest extends TestCase
 
         $deck = Deck::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/game', ['deck' => $deck->uuid]);
+        $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/game', ['name' => 'Test game', 'deck' => $deck->uuid]);
         $response->assertStatus(200);
 
         $game = $response['game'];
@@ -147,7 +171,9 @@ class GameTest extends TestCase
         $response->assertStatus(200);
         $response->assertExactJson([
             'spectators' => [User::where('id', $user->id)->first()->uuid],
-            'game' => $game,
+            'game' => [
+                'uuid' => $game,
+            ],
             'room' => $room,
             'owner' => [
                 'uuid' => User::where('id', $user->id)->first()->uuid,
@@ -162,7 +188,9 @@ class GameTest extends TestCase
         $response->assertStatus(200);
         $response->assertExactJson([
             'spectators' => [User::where('id', $user->id)->first()->uuid, User::where('id', $otherUser->id)->first()->uuid],
-            'game' => $game,
+            'game' => [
+                'uuid' => $game,
+            ],
             'room' => $room,
             'owner' => [
                 'uuid' => User::where('id', $user->id)->first()->uuid,
@@ -183,7 +211,9 @@ class GameTest extends TestCase
         $response->assertStatus(200);
         $response->assertExactJson([
             'spectators' => [],
-            'game' => $game,
+            'game' => [
+                'uuid' => $game,
+            ],
             'room' => $room,
             'owner' => [
                 'uuid' => User::where('id', $user->id)->first()->uuid,
@@ -224,6 +254,8 @@ class GameTest extends TestCase
 
     public function test_input_validation(): void
     {
+        Event::fake();
+
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->postJson('/api/room', ['name' => 'room']);
@@ -259,15 +291,10 @@ class GameTest extends TestCase
         $response->assertJsonValidationErrors(['deck']);
         $response->assertJson(['errors' => ['deck' => ['Please provide deck UUID']]]);
 
-        $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/game', ['deck' => $deck]);
+        $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/game', ['name' => 'Test room', 'deck' => $deck]);
         $response->assertStatus(200);
 
         $game = $response['game'];
-
-        $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/game/' . $game . '/vote');
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['value']);
-        $response->assertJson(['errors' => ['value' => ['Vote value is required']]]);
 
         $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/game/' . $game . '/vote', ['value' => 'a']);
         $response->assertStatus(422);
@@ -275,13 +302,61 @@ class GameTest extends TestCase
         $response->assertJson(['errors' => ['value' => ['Vote value must be an integer']]]);
     }
 
+    public function test_vote()
+    {
+        Event::fake();
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->postJson('/api/room', ['name' => 'room']);
+
+        $room = $response['room'];
+
+        $deck = Deck::factory()->create(['user_id' => $user->id]);
+
+        $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/game', ['name' => 'Test game', 'deck' => $deck->uuid]);
+        $response->assertStatus(200);
+
+        $game = $response['game'];
+
+        $this->assertDatabaseEmpty('votes');
+
+        $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/game/' . $game . '/vote', ['value' => 5]);
+        $response->assertStatus(200);
+
+        $this->assertDatabaseHas('votes', ['game_id' => Game::where('uuid', $game)->first()->id, 'value' => 5]);
+
+        $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/spectator');
+        $response->assertStatus(200);
+
+        $this->assertDatabaseHas('spectators', ['room_id' => Room::where('uuid', $room)->first()->id, 'user_id' => $user->id]);
+        $this->assertDatabaseEmpty('votes');
+
+        $response = $this->actingAs($user)->deleteJson('/api/room/' . $room . '/spectator');
+        $response->assertStatus(200);
+
+        $this->assertDatabaseEmpty('spectators');
+        $this->assertDatabaseEmpty('votes');
+
+        $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/game/' . $game . '/vote', ['value' => 1]);
+        $response->assertStatus(200);
+
+        $this->assertDatabaseHas('votes', ['game_id' => Game::where('uuid', $game)->first()->id, 'value' => 1]);
+
+        $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/game/' . $game . '/vote');
+        $response->assertStatus(200);
+
+        $this->assertDatabaseEmpty('votes');
+    }
+
     public function test_deck()
     {
+        Event::fake();
+
         $user = User::factory()->create();
 
         $this->assertDatabaseEmpty('decks');
 
-        $deck = Deck::factory()->create(['name' => 'fibo', 'cards' => '1,2,3,4,5', 'is_public' => true, 'user_id' => null]);
+        Deck::factory()->create(['name' => 'fibo', 'cards' => '1,2,3,4,5', 'is_public' => true, 'user_id' => null]);
 
         $this->assertDatabaseHas('decks', ['name' => 'fibo', 'cards' => '1,2,3,4,5', 'user_id' => null, 'is_public' => true]);
 
