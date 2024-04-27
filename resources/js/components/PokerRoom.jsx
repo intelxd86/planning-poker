@@ -6,6 +6,7 @@ import CardDeck from './CardDeck';
 import { Container } from '@mui/material';
 import PokerTable from './PokerTable';
 import Countdown from './Countdown';
+import PokerResults from './PokerResults';
 
 function PokerRoom() {
     const { state, setState } = useAppState();
@@ -268,7 +269,9 @@ function PokerRoom() {
                     onComplete={handleRevealCountdown} />
                 : null}
             <PokerTable />
-            <CardDeck />
+            {!state.room?.game || (state.room.game.ended === true && state.room.game.reveal === true) ?
+                state.room?.game?.result === null ? null : <PokerResults />
+                : <CardDeck />}
         </>
     );
 };

@@ -1,33 +1,21 @@
 import React from 'react';
-import { useEffect, useState } from 'react';
 import { useAppState } from './AppStateContext';
 import Grid from '@mui/material/Grid';
 import Container from '@mui/material/Container';
 import { Chip, Typography } from '@mui/material';
-import Face2Icon from '@mui/icons-material/Face2';
-import Face6Icon from '@mui/icons-material/Face6';
 import { CheckCircle } from '@mui/icons-material';
 import HelpIcon from '@mui/icons-material/Help';
 import Divider from '@mui/material/Divider';
 import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import { light } from '@mui/material/styles/createPalette';
-import { blueGrey, grey, indigo, lightBlue, purple } from '@mui/material/colors';
-
-
-function Test() {
-    return (
-        <Typography variant="h6">13</Typography>
-    )
-}
-
+import { blueGrey, indigo } from '@mui/material/colors';
+import NoAccountsIcon from '@mui/icons-material/NoAccounts';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 export default function PokerTable() {
     const { state, setState } = useAppState();
 
     return (
         <Container sx={{ flexGrow: 1, overflow: 'auto', mb: 2 }}>
-            <Divider orientation="horizontal" flexItem sx={{ my: 2 }}>{state.room?.game?.name}</Divider>
             <Grid
                 container
                 direction="row"
@@ -65,7 +53,7 @@ export default function PokerTable() {
                                     : <HelpIcon fontSize='large' />}
                             </Card>
                             <Chip
-                                icon={<Face6Icon />}
+                                icon={state.ws_users?.some(u => u.uuid === user.uuid) ? <AccountCircleIcon /> : <NoAccountsIcon />}
                                 label={user.name}
                                 sx={{ mt: 1 }}
                             />
