@@ -5,22 +5,35 @@ import { snackbarNotify } from './Utils';
 import useTextInput from './UseTextInput';
 import PollIcon from '@mui/icons-material/Poll';
 import { Poll } from '@mui/icons-material';
+import CreateDeckForm from './CreateDeckForm';
+import { useSnackbar } from 'notistack';
+import { enqueueSnackbar } from 'notistack';
 
 export default function CreateGameForm() {
-    const [formState, setFormState] = useState({ errors: {} });
+    const [formState, setFormState] = useState({ errors: {}, fetchDeck: true });
     const { uuid } = useParams();
     const [gameNameInput, gameName, setGameName] = useTextInput('name', formState, { label: 'Game name', required: true, id: 'game_name', type: 'text', margin: 'dense' });
     const [deckUUID, setDeckUUID] = useState('');
     const [decks, setDecks] = useState([]);
     const [open, setOpen] = React.useState(false);
 
-    useEffect(() => {
-        window.axios.get('/api/deck').then((response) => {
+    const fetchDeckOptions = async () => {
+        try {
+            const response = await window.axios.get('/api/deck');
             const deckOptions = response.data.map((deck) => ({ label: deck.name + ' (' + deck.cards + ')', id: deck.uuid }));
             setDecks(deckOptions);
             setDeckUUID(deckOptions[0].id);
-        });
-    }, []);
+            setFormState({ ...formState, fetchDeck: false });
+        } catch (error) {
+            snackbarNotify(error.response.data.errors)
+        }
+    }
+
+    useEffect(() => {
+        if (formState.fetchDeck) {
+            fetchDeckOptions();
+        }
+    }, [formState.fetchDeck]);
 
     async function submitCreateGame(e) {
         e.preventDefault();
@@ -28,9 +41,15 @@ export default function CreateGameForm() {
             const response = await window.axios.post('/api/room/' + uuid + '/game', { name: gameName, deck: deckUUID });
             if (response.status === 200) {
                 setOpen(false);
+                enqueueSnackbar('Game created', { variant: 'success' })
             }
         } catch (error) {
-            snackbarNotify(error.response.data.errors)
+            if (error.response.data.errors) {
+                snackbarNotify(error.response.data.errors)
+            }
+            else {
+                console.error(error);
+            }
         }
     }
 
@@ -55,8 +74,6 @@ export default function CreateGameForm() {
                 open={open}
                 onClose={handleClose}
                 PaperProps={{
-                    component: 'form',
-                    onSubmit: submitCreateGame
                 }}
                 maxWidth="sm"
                 fullWidth
@@ -89,9 +106,20 @@ export default function CreateGameForm() {
                         fullWidth
                         type="submit"
                         margin="dense"
+                        onClick={submitCreateGame}
                     >
                         Create game
                     </Button>
+                    <Button
+                        onClick={handleClose}
+                        variant="outlined"
+                        fullWidth
+                        margin="dense"
+                        sx={{ mt: 1 }}
+                    >
+                        Cancel
+                    </Button>
+                    <CreateDeckForm setState={setFormState} />
                 </DialogContent>
             </Dialog>
         </React.Fragment>

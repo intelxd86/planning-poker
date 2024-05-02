@@ -65,6 +65,15 @@ export default function CreateRoom() {
                     >
                         Create room
                     </Button>
+                    <Button
+                        variant="outlined"
+                        fullWidth
+                        margin="dense"
+                        sx={{ mt: 1 }}
+                        onClick={handleClose}
+                    >
+                        Cancel
+                    </Button>
                 </DialogContent>
 
             </Dialog>
