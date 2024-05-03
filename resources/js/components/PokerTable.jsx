@@ -10,12 +10,14 @@ import Card from '@mui/material/Card';
 import { blueGrey, indigo } from '@mui/material/colors';
 import NoAccountsIcon from '@mui/icons-material/NoAccounts';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import GameInfo from './GameInfo';
 
 export default function PokerTable() {
     const { state, setState } = useAppState();
 
     return (
         <Container sx={{ flexGrow: 1, overflow: 'auto', mb: 2 }}>
+            <GameInfo />
             <Grid
                 container
                 direction="row"
