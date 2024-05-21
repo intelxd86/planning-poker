@@ -79,7 +79,7 @@ class UserController extends Controller
             $user->setRememberToken(Str::random(60));
             $user->save();
 
-            return true;
+            return;
         });
     }
 }

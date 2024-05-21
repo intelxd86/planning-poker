@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
@@ -20,6 +21,8 @@ class UserTest extends TestCase
 
     public function test_create_user(): void
     {
+        Config::set('poker.mode', 'default');
+
         $this->assertDatabaseEmpty('users');
         $response = $this->postJson('/api/user/create', [
             'name' => 'test',
@@ -55,6 +58,31 @@ class UserTest extends TestCase
 
         $this->assertDatabaseCount('users', 1);
         $this->assertDatabaseHas('users', ['email' => 'test@example.com']);
+    }
+
+    public function test_otp_user(): void
+    {
+        Config::set('poker.mode', 'otp');
+        Config::set('poker.otp_tld', 'macrohard.com');
+
+        $this->assertDatabaseEmpty('users');
+        $response = $this->postJson('/api/user/send-otp', [
+            'email' => 'test@example.com',
+        ]);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['email']);
+
+        $response = $this->postJson('/api/user/send-otp', [
+            'email' => 'bill@macrohard.com',
+        ]);
+        $response->assertStatus(200);
+        $this->assertDatabaseCount('users', 1);
+
+        $response = $this->postJson('/api/user/send-otp', [
+            'email' => 'bill@macrohard.com',
+        ]);
+        $response->assertStatus(200);
+        $this->assertDatabaseCount('users', 1);
     }
 
     public function test_user_auth(): void

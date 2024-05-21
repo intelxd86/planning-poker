@@ -41,7 +41,7 @@ Route::group(['prefix' => 'api'], function () {
 });
 
 Route::fallback(function () {
-    return view('welcome', ['initialState' => [
+    return view('welcome', ['state' => [
         'user' => Auth::user() ? Auth::user()->toArray() : null,
         'mode' => config('poker.mode'),
     ]]);
