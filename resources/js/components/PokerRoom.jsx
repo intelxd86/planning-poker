@@ -258,6 +258,10 @@ function PokerRoom() {
         console.log('state', state);
     }, [state]);
 
+    if (!state.room) {
+        return null;
+    }
+
     return (
         <>
             {state.room?.game?.reveal_countdown === true ?

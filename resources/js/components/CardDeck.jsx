@@ -79,6 +79,10 @@ export default function CardDeck() {
         }
     }
 
+    if (!state.room.game) {
+        return null;
+    }
+
     return (
         <>
             <Container sx={{ flexGrow: 0, mb: 5 }}>

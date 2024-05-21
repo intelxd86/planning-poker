@@ -1,13 +1,17 @@
 import { Box, Button, Paper, Container } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import useTextInput from './UseTextInput';
 import RegisterForm from './RegisterForm';
 import { useAppState } from './AppStateContext';
 import { snackbarNotify } from './Utils';
+import SendOtpForm from './SendOtpForm';
 
 const LoginForm = () => {
+    const sendOtpFormRef = useRef(null);
     const [formState, setFormState] = useState({ errors: {} });
     const { state, setState } = useAppState();
+
+    const [otpState, setOtpState] = useState({ passSent: false });
 
     const [emailInput, email, setEmail] = useTextInput('email', formState, { label: 'Email Address', required: true, id: 'login_email', type: 'email', margin: 'dense' });
     const [passwordInput, password, setPassword] = useTextInput('password', formState, { label: 'Password', required: true, id: 'login_password', type: 'password', margin: 'dense' });
@@ -24,12 +28,21 @@ const LoginForm = () => {
                 }))
             }
         } catch (error) {
-            snackbarNotify(error.response.data.errors)
-            if (error.response && error.response.status === 422) {
+            if (error.response.data.errors) {
+                snackbarNotify(error.response.data.errors)
                 setFormState(prev => ({ ...prev, errors: error.response.data.errors }));
             } else {
                 console.error(error);
             }
+        }
+    };
+
+    const handleFormSubmit = (event) => {
+        event.preventDefault();
+        if (otpState.passSent) {
+            handleSubmit(event);
+        } else {
+            sendOtpFormRef.current.handleSendOtp(event);
         }
     };
 
@@ -49,12 +62,12 @@ const LoginForm = () => {
                     noValidate
                     autoComplete="off"
                     sx={{ width: "100%" }}
-                    onSubmit={handleSubmit}
+                    onSubmit={handleFormSubmit}
 
                 >
                     {emailInput}
-                    {passwordInput}
-                    <Button
+                    {state.mode !== 'otp' || otpState.passSent ? passwordInput : null}
+                    {state.mode !== 'otp' || otpState.passSent ? <Button
                         variant="contained"
                         fullWidth
                         type="submit"
@@ -62,9 +75,16 @@ const LoginForm = () => {
                         sx={{ mt: 1 }}
                     >
                         Login
-                    </Button>
+                    </Button> : null}
                 </Box>
-                <RegisterForm />
+                {state.mode === 'otp' ? <SendOtpForm
+                    setState={setOtpState}
+                    state={otpState}
+                    snackbarNotify={snackbarNotify}
+                    email={email}
+                    formState={formState}
+                    setFormState={setFormState}
+                    ref={sendOtpFormRef} /> : <RegisterForm />}
             </Paper>
         </Container>
     );

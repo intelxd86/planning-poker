@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 Route::group(['prefix' => 'api'], function () {
     Route::post('/user/create', [UserController::class, 'createUser']);
     Route::post('/user/login', [UserController::class, 'loginUser']);
+    Route::post('/user/send-otp', [UserController::class, 'sendOtp']);
 
     Route::group(['middleware' => 'auth:web'], function () {
         Route::post('/deck', [GameController::class, 'createDeck']);
@@ -42,5 +43,6 @@ Route::group(['prefix' => 'api'], function () {
 Route::fallback(function () {
     return view('welcome', ['initialState' => [
         'user' => Auth::user() ? Auth::user()->toArray() : null,
+        'mode' => config('poker.mode'),
     ]]);
 });

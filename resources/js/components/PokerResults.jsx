@@ -11,7 +11,7 @@ export default function PokerResults() {
 
     return (
         <>
-            <Container sx={{ flexGrow: 0, mb: 5 }}>
+            {state.room.game ? <Container sx={{ flexGrow: 0, mb: 5 }}>
                 <Divider orientation="horizontal" flexItem sx={{ my: 2 }}>
                     <Chip label="Game result" />
                 </Divider>
@@ -45,7 +45,7 @@ export default function PokerResults() {
                         Median: {state.room?.game?.result?.median}
                     </Typography>
                 </Card>
-            </Container>
+            </Container> : null}
         </>
     )
 }

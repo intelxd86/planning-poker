@@ -4,14 +4,14 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateUserRequest extends FormRequest
+class SendOtpRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return (config('poker.mode') !== 'otp');
+        return (config('poker.mode') === 'otp');
     }
 
     /**
@@ -21,11 +21,14 @@ class CreateUserRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'name' => ['required', 'string'],
-            'email' => ['required', 'email', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8'],
-            'password_confirmation' => ['required', 'string', 'same:password']
+        $rules = [
+            'email' => ['required', 'email'],
         ];
+
+        if (config('poker.mode') === 'otp') {
+            $rules['email'][] = 'ends_with:' . config('poker.otp_tld');
+        }
+
+        return $rules;
     }
 }

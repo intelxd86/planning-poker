@@ -21,7 +21,10 @@ export default function Navigation() {
         try {
             const response = await window.axios.post('/api/user/logout');
             if (response.status === 200) {
-                setState({ user: null });
+                setState(prevState => ({
+                    ...prevState,
+                    user: null
+                }))
             }
         } catch (error) {
             if (error.response.data && error.response.data.errors) {
