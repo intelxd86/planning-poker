@@ -64,7 +64,7 @@ class GameController extends Controller
                 'errors' => [
                     'limit' => ['You may try again in ' . $seconds . ' seconds.'],
                 ]
-            ], 403);
+            ], 429);
         }
 
         RateLimiter::increment('create-room:' . $request->user()->id);
@@ -87,7 +87,7 @@ class GameController extends Controller
                 'errors' => [
                     'limit' => ['You may try again in ' . $seconds . ' seconds.'],
                 ]
-            ], 403);
+            ], 429);
         }
 
         RateLimiter::increment('create-game:' . $request->user()->id);

@@ -82,7 +82,7 @@ class UserTest extends TestCase
         $response = $this->postJson('/api/user/send-otp', [
             'email' => 'bill.doors@macrohard.com',
         ]);
-        $response->assertStatus(403);
+        $response->assertStatus(429);
         $response->assertJsonStructure(['errors']);
         $response->assertJsonFragment(['limit' => ['You may try again in 60 seconds.']]);
 

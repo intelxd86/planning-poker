@@ -64,7 +64,7 @@ class UserController extends Controller
                 'errors' => [
                     'limit' => ['You may try again in ' . $seconds . ' seconds.'],
                 ]
-            ], 403);
+            ], 429);
         }
 
         RateLimiter::increment('send-otp:' . $email, $decaySeconds = 60);
