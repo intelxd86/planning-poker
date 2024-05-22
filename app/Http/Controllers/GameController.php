@@ -17,6 +17,7 @@ use App\Models\Spectator;
 use App\Models\Vote;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 
 class GameController extends Controller
@@ -56,6 +57,18 @@ class GameController extends Controller
 
     public function createRoom(CreateRoomRequest $request)
     {
+        if (RateLimiter::tooManyAttempts('create-room:' . $request->user()->id, $perMinute = 1)) {
+            $seconds = RateLimiter::availableIn('create-room:' . $request->user()->id);
+
+            return response()->json([
+                'errors' => [
+                    'limit' => ['You may try again in ' . $seconds . ' seconds.'],
+                ]
+            ], 403);
+        }
+
+        RateLimiter::increment('create-room:' . $request->user()->id);
+
         $room = new Room();
         $room->uuid = Str::uuid();
         $room->user_id = $request->user()->id;
@@ -67,6 +80,18 @@ class GameController extends Controller
 
     public function createGame(CreateGameRequest $request, Room $room)
     {
+        if (RateLimiter::tooManyAttempts('create-game:' . $request->user()->id, $perMinute = 1)) {
+            $seconds = RateLimiter::availableIn('create-game:' . $request->user()->id);
+
+            return response()->json([
+                'errors' => [
+                    'limit' => ['You may try again in ' . $seconds . ' seconds.'],
+                ]
+            ], 403);
+        }
+
+        RateLimiter::increment('create-game:' . $request->user()->id);
+
         if ($room->user_id !== $request->user()->id) {
             return response()->json(['errors' => ['room' => ['You are not the owner of this room']]], 403);
         }

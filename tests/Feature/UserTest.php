@@ -67,19 +67,29 @@ class UserTest extends TestCase
 
         $this->assertDatabaseEmpty('users');
         $response = $this->postJson('/api/user/send-otp', [
-            'email' => 'test@example.com',
+            'email' => 'john.doe@example.com',
         ]);
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['email']);
 
         $response = $this->postJson('/api/user/send-otp', [
-            'email' => 'bill@macrohard.com',
+            'email' => 'bill.doors@macrohard.com',
         ]);
         $response->assertStatus(200);
         $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseHas('users', ['email' => 'bill.doors@macrohard.com', 'name' => 'Bill Doors']);
 
         $response = $this->postJson('/api/user/send-otp', [
-            'email' => 'bill@macrohard.com',
+            'email' => 'bill.doors@macrohard.com',
+        ]);
+        $response->assertStatus(403);
+        $response->assertJsonStructure(['errors']);
+        $response->assertJsonFragment(['limit' => ['You may try again in 60 seconds.']]);
+
+        Carbon::setTestNow(now()->addMinutes(1));
+
+        $response = $this->postJson('/api/user/send-otp', [
+            'email' => 'bill.doors@macrohard.com',
         ]);
         $response->assertStatus(200);
         $this->assertDatabaseCount('users', 1);

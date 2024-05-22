@@ -7,11 +7,13 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\SendOtpRequest;
 use App\Mail\OtpSent;
 use App\Models\User;
+use App\Utils\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 
 class UserController extends Controller
@@ -55,15 +57,36 @@ class UserController extends Controller
     {
         $email = $request->input('email');
 
+        if (RateLimiter::tooManyAttempts('send-otp:' . $email, $perMinute = 1)) {
+            $seconds = RateLimiter::availableIn('send-otp:' . $email);
+
+            return response()->json([
+                'errors' => [
+                    'limit' => ['You may try again in ' . $seconds . ' seconds.'],
+                ]
+            ], 403);
+        }
+
+        RateLimiter::increment('send-otp:' . $email, $decaySeconds = 60);
+
         return DB::transaction(function () use ($email) {
             $user = User::lockForUpdate()->where('email', $email)->first();
 
             $password = Str::random(12);
 
             if (!$user) {
+
+                $name = Utils::getNameFromEmail($email);
+                if (!$name) {
+                    $name = Utils::extractBeforeAt($email);
+                    if (!$name) {
+                        $name = $email;
+                    }
+                }
+
                 $user = new User();
                 $user->uuid = Str::uuid();
-                $user->name = $email;
+                $user->name = $name;
                 $user->email = $email;
                 $user->password = Hash::make($password);
                 $user->save();
