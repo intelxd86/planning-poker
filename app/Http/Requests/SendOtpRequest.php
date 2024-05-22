@@ -22,7 +22,7 @@ class SendOtpRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'email' => ['required', 'email'],
+            'email' => ['required', 'email', 'max:255'],
         ];
 
         if (config('poker.mode') === 'otp') {

@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // \App\Models\User::factory(10)->create();
-
+/*
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Another Test User',
             'email' => 'test2@example.com',
         ]);
-
+*/
         Deck::factory()->create([
             'name' => 'Default',
             'cards' => '1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20',

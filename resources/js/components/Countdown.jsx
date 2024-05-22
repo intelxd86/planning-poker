@@ -39,7 +39,7 @@ export default function Countdown({ duration, onComplete }) {
                 bottom: 0,
                 zIndex: 9001,
                 background: 'rgba(0, 0, 0, 0.5)',
-                transition: 'all 0.5s ease-in-out'
+                transition: 'all 0.3s ease-in-out'
             }}>
             <Slide direction={slideIn ? "up" : "down"} in={slideIn} mountOnEnter unmountOnExit>
                 <div>
