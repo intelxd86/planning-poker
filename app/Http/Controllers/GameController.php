@@ -17,6 +17,7 @@ use App\Models\Spectator;
 use App\Models\Vote;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 
@@ -75,6 +76,8 @@ class GameController extends Controller
         $room->name = $request->input('name');
         $room->save();
 
+        Log::info('Room created', ['uuid' => $room->uuid, 'name' => $room->name, 'user' => $request->user()->uuid]);
+
         return response()->json(['room' => $room->uuid]);
     }
 
@@ -114,6 +117,8 @@ class GameController extends Controller
 
         broadcast(new NewGameEvent($room, $game));
 
+        Log::info('Game created', ['room' => $room->uuid, 'game' => $game->uuid, 'name' => $game->name, 'deck' => $deck->uuid, 'user' => $request->user()->uuid]);
+
         return response()->json(['game' => $game->uuid]);
     }
 
@@ -125,6 +130,8 @@ class GameController extends Controller
 
         $value = $request->input('value');
         $user = $request->user();
+
+        Log::debug('Vote attempt', ['room' => $room->uuid, 'game' => $game->uuid, 'user' => $user->uuid, 'value' => $value]);
 
         $spectator = Spectator::where('room_id', $room->id)->where('user_id', $user->id)->first();
         if ($spectator) {
@@ -140,12 +147,15 @@ class GameController extends Controller
 
             broadcast(new VoteEvent($room, $game, $user, false));
 
+            Log::debug('Vote removed', ['room' => $room->uuid, 'game' => $game->uuid, 'user' => $user->uuid]);
+
             return response()->json(['success' => true]);
         }
 
         $deck = Deck::where('id', $game->deck_id)->firstOrFail();
 
         if (!in_array($value, $deck->getCards())) {
+            Log::debug('Invalid card value', ['room' => $room->uuid, 'game' => $game->uuid, 'user' => $user->uuid, 'value' => $value]);
             return response()->json(['errors' => ['value' => ['Invalid card value - it is not in the deck']]], 403);
         }
 
@@ -156,6 +166,7 @@ class GameController extends Controller
         if ($vote) {
             $vote->value = $value;
             $vote->save();
+            Log::debug('Vote updated', ['room' => $room->uuid, 'game' => $game->uuid, 'user' => $user->uuid, 'value' => $value]);
         } else {
             $vote = new Vote();
             $vote->game_id = $game->id;
@@ -164,6 +175,7 @@ class GameController extends Controller
             $vote->save();
 
             broadcast(new VoteEvent($room, $game, $user, true));
+            Log::debug('Vote created', ['room' => $room->uuid, 'game' => $game->uuid, 'user' => $user->uuid, 'value' => $value]);
         }
 
         return response()->json(['success' => true]);
@@ -216,6 +228,7 @@ class GameController extends Controller
         $votes = Vote::where('game_id', $game->id)->count();
 
         if ($votes === 0) {
+            Log::debug('No votes to end game', ['room' => $room->uuid, 'game' => $game->uuid, 'user' => $request->user()->uuid]);
             return response()->json(['errors' => ['game' => ['No one has voted yet']]], 403);
         }
 
@@ -224,6 +237,8 @@ class GameController extends Controller
         $game->save();
 
         broadcast(new GameEndEvent($room, $game));
+
+        Log::info('Game finished', ['room' => $room->uuid, 'game' => $game->uuid, 'user' => $request->user()->uuid]);
 
         return response()->json(['success' => true]);
     }
@@ -262,6 +277,8 @@ class GameController extends Controller
             }
         }
 
+        Log::debug('Spectator set', ['room' => $room->uuid, 'user' => $user->uuid]);
+
         return response()->json(['success' => true]);
     }
 
@@ -280,6 +297,8 @@ class GameController extends Controller
 
         broadcast(new UserSpectatorEvent($room, $user, false));
 
+        Log::debug('Spectator unset', ['room' => $room->uuid, 'user' => $user->uuid]);
+
         return response()->json(['success' => true]);
     }
 
@@ -292,6 +311,8 @@ class GameController extends Controller
         $deck->is_public = false;
         $deck->user_id = $request->user()->id;
         $deck->save();
+
+        Log::debug('Deck created', ['uuid' => $deck->uuid, 'name' => $deck->name, 'cards' => $deck->cards, 'user' => $request->user()->uuid]);
 
         return response()->json(['deck' => $deck->uuid]);
     }

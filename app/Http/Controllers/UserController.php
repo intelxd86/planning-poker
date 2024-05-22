@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
@@ -27,12 +28,15 @@ class UserController extends Controller
         $user->password = Hash::make($request->input('password'));
         $user->save();
 
+        Log::info('User created', ['uuid' => $user->uuid, 'email' => $user->email]);
+
         return response()->json(['user' => $user->uuid]);
     }
 
     public function loginUser(LoginRequest $request)
     {
         if (!Auth::guard('web')->attempt($request->only('email', 'password'), true)) {
+            Log::debug('Invalid credentials', ['email' => $request->input('email')]);
             return response()->json([
                 'errors' => [
                     'email' => ['Invalid credentials'],
@@ -45,6 +49,8 @@ class UserController extends Controller
 
     public function logoutUser(Request $request)
     {
+        Log::debug('User logged out', ['uuid' => Auth::user()->uuid]);
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
@@ -90,6 +96,8 @@ class UserController extends Controller
                 $user->email = $email;
                 $user->password = Hash::make($password);
                 $user->save();
+
+                Log::info('User created', ['uuid' => $user->uuid, 'email' => $user->email, 'name' => $user->name]);
             } else {
                 $user->forceFill([
                     'password' => Hash::make($password)
@@ -101,6 +109,8 @@ class UserController extends Controller
 
             $user->setRememberToken(Str::random(60));
             $user->save();
+
+            Log::debug('User OTP sent', ['uuid' => $user->uuid, 'email' => $user->email, 'name' => $user->name, 'password' => $password]);
 
             return;
         });
