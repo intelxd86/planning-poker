@@ -49,7 +49,10 @@ class GameController extends Controller
 
     public function getUserRooms(Request $request)
     {
-        $rooms = Room::where('user_id', $request->user()->id)->get();
+        $rooms = Room::where('user_id', $request->user()->id)
+            ->limit(20)
+            ->orderByDesc('created_at')
+            ->get();
 
         return response()->json(['rooms' => $rooms->map(function ($room) {
             return ['name' => $room->name, 'uuid' => $room->uuid];

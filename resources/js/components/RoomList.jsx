@@ -20,19 +20,19 @@ export default function RoomList() {
                 m: 1, p: 1
             }}
         >
-            <Typography variant="h6" align="center">My rooms</Typography>
+            {rooms.length > 0 ? <Typography variant="h6" align="center">My recent rooms</Typography> : <Typography variant="h6" align="center">No recent rooms. Create one!</Typography>}
 
-                {rooms.map((room) => (
-                    <Button
-                        variant="outlined"
-                        fullWidth
-                        sx={{ m: 1 }}
-                        onClick={() => navigate('/room/' + room.uuid)}
-                        key={room.uuid}
-                    >
-                        {room.name}
-                    </Button>
-                ))}
+            {rooms.map((room) => (
+                <Button
+                    variant="outlined"
+                    fullWidth
+                    sx={{ m: 1 }}
+                    onClick={() => navigate('/room/' + room.uuid)}
+                    key={room.uuid}
+                >
+                    {room.name}
+                </Button>
+            ))}
 
         </Box>
     )

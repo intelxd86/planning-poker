@@ -6,10 +6,9 @@ import { useAppState } from './AppStateContext';
 export default function GameInfo() {
     const { state } = useAppState();
 
-
     return (
         <Container sx={{ py: 3 }}>
-            {state.room.game ? <Card sx={{
+            <Card sx={{
                 margin: '0 auto',
                 maxWidth: 'fit-content',
                 width: 'auto',
@@ -23,18 +22,24 @@ export default function GameInfo() {
                 },
             }}
             >
-                <Typography variant='body1'>
-                    Game: {state.room?.game?.name}
-                </Typography>
-                <Divider orientation="vertical" variant="middle" flexItem />
-                <Typography variant='body1'>
-                    Game state: {state.room?.game?.ended ? 'Finished' : 'Ongoing'}
-                </Typography>
+                {state.room.game ? <>
+                    <Typography variant='body1'>
+                        Game: {state.room?.game?.name}
+                    </Typography>
+                    <Divider orientation="vertical" variant="middle" flexItem />
+                    <Typography variant='body1'>
+                        Game state: {state.room?.game?.ended ? 'Finished' : 'Ongoing'}
+                    </Typography>
+                </>
+                    : <Typography variant='body1'>
+                        No ongoing or past game. Create new game!
+                    </Typography>
+                }
                 <Divider orientation="vertical" variant="middle" flexItem />
                 <Typography variant='body1'>
                     Operator: {state.room?.owner?.name}
                 </Typography>
-            </Card> : null}
+            </Card>
         </Container>
     )
 }
