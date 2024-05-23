@@ -73,7 +73,7 @@ class UserTest extends TestCase
         $response->assertJsonValidationErrors(['email']);
 
         $response = $this->postJson('/api/user/send-otp', [
-            'email' => 'bill.doors@macrohard.com',
+            'email' => 'BILL.DOORS@macrohard.com',
         ]);
         $response->assertStatus(200);
         $this->assertDatabaseCount('users', 1);

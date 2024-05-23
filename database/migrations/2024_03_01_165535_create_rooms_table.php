@@ -16,6 +16,7 @@ return new class extends Migration
             $table->uuid('uuid')->unique();
             $table->text('name');
             $table->foreignId('user_id')->constrained();
+            $table->boolean('owner_managed')->default(true);
             $table->timestamps();
 
             $table->unique(['name', 'user_id'], 'user_rooms_unique');

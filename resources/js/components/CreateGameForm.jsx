@@ -25,7 +25,9 @@ export default function CreateGameForm() {
             setDeckUUID(deckOptions[0].id);
             setFormState({ ...formState, fetchDeck: false });
         } catch (error) {
-            snackbarNotify(error.response.data.errors)
+            if (error.response?.data?.errors) {
+                snackbarNotify(error.response.data.errors)
+            }
         }
     }
 

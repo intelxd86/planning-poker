@@ -31,4 +31,13 @@ class SendOtpRequest extends FormRequest
 
         return $rules;
     }
+
+    protected function prepareForValidation()
+    {
+        if ($this->has('email')) {
+            $this->merge([
+                'email' => strtolower($this->input('email')),
+            ]);
+        }
+    }
 }

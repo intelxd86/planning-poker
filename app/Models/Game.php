@@ -50,7 +50,7 @@ class Game extends Model
                 $carry[$vote->user->uuid] = $vote->value;
                 return $carry;
             }, []),
-            'average' => $votes->avg('value'),
+            'average' => round($votes->avg('value'), 2),
             'median' => $votes->median('value'),
             'min' => $votes->min('value'),
             'max' => $votes->max('value'),

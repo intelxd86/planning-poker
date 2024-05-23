@@ -11,6 +11,8 @@ import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import AlarmIcon from '@mui/icons-material/Alarm';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import BuildIcon from '@mui/icons-material/Build';
 
 export default function Navigation() {
     const { state, setState } = useAppState();
@@ -77,6 +79,20 @@ export default function Navigation() {
         }
     }
 
+    const toggleOpMode = () => async (e) => {
+        e.preventDefault();
+
+        try {
+            await window.axios.post('/api/room/' + state.room.room + '/opmode');
+        } catch (error) {
+            if (error.response.data && error.response.data.errors) {
+                snackbarNotify(error.response.data.errors)
+            } else {
+                console.error(error);
+            }
+        }
+    }
+
     const isRoomOwner = state.room?.owner.uuid === state.user.uuid || false;
     const showCreateGameForm = !state.room || !state.room.game || state.room.game.result !== null;
     const isSpectator = state.room?.spectators?.includes(state.user.uuid);
@@ -87,7 +103,7 @@ export default function Navigation() {
             <Toolbar>
                 <Grid container justifyContent="space-between">
                     <Grid item>
-                        {isRoomOwner && (
+                        {(isRoomOwner || state.room?.owner_managed === false) && (
                             showCreateGameForm ?
                                 <CreateGameForm /> :
                                 <Button color="inherit" onClick={handleRevealVotes()} startIcon={<AlarmIcon />} disabled={revealDisabled}>
@@ -102,6 +118,11 @@ export default function Navigation() {
                                 <Button color="inherit" onClick={handleSetSpectator()} startIcon={<VisibilityIcon />}>
                                     Become spectator
                                 </Button>
+                        )}
+                        {state.room && isRoomOwner && (state.room.owner_managed ?
+                            <Button color='inherit' startIcon={<BuildIcon />} onClick={toggleOpMode()}>Allow everyone to manage</Button>
+                            :
+                            <Button color='inherit' startIcon={<AdminPanelSettingsIcon />} onClick={toggleOpMode()}>Disllow everyone to manage</Button>
                         )}
                         {!state.room && <CreateRoom />}
                     </Grid>

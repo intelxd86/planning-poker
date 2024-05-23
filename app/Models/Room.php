@@ -9,7 +9,10 @@ class Room extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['uuid', 'user_id'];
+    protected $fillable = ['uuid', 'user_id', 'owner_managed', 'name'];
+    protected $casts = [
+        'owner_managed' => 'boolean',
+    ];
 
     public function games()
     {

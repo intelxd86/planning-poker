@@ -221,6 +221,16 @@ function PokerRoom() {
 
 
             })
+            .listen('RoomUpdatedEvent', (event) => {
+                console.log('RoomUpdatedEvent', event);
+                setState(prevState => ({
+                    ...prevState,
+                    room: {
+                        ...prevState.room,
+                        ...event.room
+                    }
+                }));
+            })
             .error((error) => {
                 console.error(error);
             });

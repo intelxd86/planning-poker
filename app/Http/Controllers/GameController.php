@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\GameEndEvent;
 use App\Events\NewGameEvent;
+use App\Events\RoomUpdatedEvent;
 use App\Events\UserSpectatorEvent;
 use App\Events\VoteEvent;
 use App\Http\Requests\CreateDeckRequest;
@@ -44,6 +45,7 @@ class GameController extends Controller
                 'uuid' => $room->user->uuid,
                 'name' => $room->user->name,
             ],
+            'owner_managed' => $room->owner_managed,
         ];
     }
 
@@ -98,7 +100,7 @@ class GameController extends Controller
 
         RateLimiter::increment('create-game:' . $request->user()->id);
 
-        if ($room->user_id !== $request->user()->id) {
+        if ($room->owner_managed && $room->user_id !== $request->user()->id) {
             return response()->json(['errors' => ['room' => ['You are not the owner of this room']]], 403);
         }
 
@@ -220,7 +222,7 @@ class GameController extends Controller
 
     public function stopGame(Request $request, Room $room, Game $game)
     {
-        if ($room->user_id !== $request->user()->id) {
+        if ($room->owner_managed && $room->user_id !== $request->user()->id) {
             return response()->json(['errors' => ['room' => ['You are not the owner of this room']]], 403);
         }
 
@@ -334,5 +336,33 @@ class GameController extends Controller
                 'cards' => $deck->cards,
             ];
         }));
+    }
+
+    public function toggleRoomManaged(Request $request, Room $room)
+    {
+        if ($room->user_id !== $request->user()->id) {
+            return response()->json(['errors' => ['room' => ['You are not the owner of this room']]], 403);
+        }
+
+        if (RateLimiter::tooManyAttempts('toggle-manage-room:' . $request->user()->id, $perMinute = 6)) {
+            $seconds = RateLimiter::availableIn('toggle-manage-room:' . $request->user()->id);
+
+            return response()->json([
+                'errors' => [
+                    'limit' => ['You may try again in ' . $seconds . ' seconds.'],
+                ]
+            ], 429);
+        }
+
+        RateLimiter::increment('toggle-manage-room:' . $request->user()->id);
+
+        $room->owner_managed = !$room->owner_managed;
+        $room->save();
+
+        broadcast(new RoomUpdatedEvent($room));
+
+        Log::debug('Room operate mode toggled', ['room' => $room->uuid, 'user' => $request->user()->uuid]);
+
+        return response()->json(['success' => true]);
     }
 }
