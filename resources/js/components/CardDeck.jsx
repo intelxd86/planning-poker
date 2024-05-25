@@ -8,22 +8,29 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import { snackbarNotify } from './Utils';
 import Typography from '@mui/material/Typography';
-import { styled } from '@mui/system';
+import { styled, useTheme } from '@mui/system';
 import { ThemeContext } from '@emotion/react';
-import { useTheme } from '@mui/material/styles';
 import { blueGrey, lightBlue } from '@mui/material/colors';
 
-const PokerCard = styled(Card)({
-    transition: 'all 0.1s ease-in-out',
-    '&:hover': {
-        transform: 'scale(1.1)'
-    },
+const PokerCard = styled(Card)(({ theme }) => {
+    const currentTheme = useTheme();
+    const { pokerCard } = currentTheme.customComponents;
+
+    return {
+        transition: 'all 0.1s ease-in-out',
+        backgroundColor: pokerCard.backgroundColor,
+        color: pokerCard.color,
+        '&:hover': {
+            transform: 'scale(1.1)',
+        },
+    };
 });
 
 export default function CardDeck() {
     const { state, setState } = useAppState();
     const [selectedCard, setSelectedCard] = useState(state.room?.game?.user_vote_value ? state.room.game.user_vote_value : null);
-    const theme = useTheme();
+    const currentTheme = useTheme();
+    const { pokerCard } = currentTheme.customComponents;
 
     useEffect(() => {
         const userVoteValue = state.room?.game?.user_vote_value;
@@ -33,7 +40,7 @@ export default function CardDeck() {
     }, [state.room?.game?.user_vote_value]);
 
     const selectedCardStyle = {
-        backgroundColor: lightBlue[50],
+        backgroundColor: pokerCard.selectedBackgroundColor,
         position: 'relative',
         bottom: '5px',
         transition: 'all 0.1s ease-in-out',

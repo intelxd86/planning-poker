@@ -1,9 +1,15 @@
 import React, { createContext, useContext, useState } from 'react';
+import { useMediaQuery } from '@mui/material';
 
 const AppStateContext = createContext();
 
 export function AppStateProvider({ children }) {
-    const [state, setState] = useState(window.state || {});
+    const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+    let initialState = window.state || {};
+    if (prefersDarkMode) {
+        initialState = { ...initialState, darkMode: true };
+    }
+    const [state, setState] = useState(initialState);
     return (
         <AppStateContext.Provider value={{ state, setState }}>
             {children}

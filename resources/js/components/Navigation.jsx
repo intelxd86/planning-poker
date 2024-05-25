@@ -13,6 +13,8 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import AlarmIcon from '@mui/icons-material/Alarm';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import BuildIcon from '@mui/icons-material/Build';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
 
 export default function Navigation() {
     const { state, setState } = useAppState();
@@ -93,6 +95,13 @@ export default function Navigation() {
         }
     }
 
+    const handleToggleDarkMode = () => {
+        setState(prevState => ({
+            ...prevState,
+            darkMode: !prevState.darkMode
+        }))
+    }
+
     const isRoomOwner = state.room?.owner.uuid === state.user.uuid || false;
     const showCreateGameForm = !state.room || !state.room.game || state.room.game.result !== null;
     const isSpectator = state.room?.spectators?.includes(state.user.uuid);
@@ -122,11 +131,15 @@ export default function Navigation() {
                         {state.room && isRoomOwner && (state.room.owner_managed ?
                             <Button color='inherit' startIcon={<BuildIcon />} onClick={toggleOpMode()}>Allow everyone to manage</Button>
                             :
-                            <Button color='inherit' startIcon={<AdminPanelSettingsIcon />} onClick={toggleOpMode()}>Disllow everyone to manage</Button>
+                            <Button color='inherit' startIcon={<AdminPanelSettingsIcon />} onClick={toggleOpMode()}>Disallow everyone to manage</Button>
                         )}
                         {!state.room && <CreateRoom />}
                     </Grid>
                     <Grid item>
+                        <Button color="inherit" onClick={handleToggleDarkMode} endIcon={state.darkMode ? <LightModeIcon /> : <DarkModeIcon />}>{
+                            state.darkMode ? 'Light mode' : 'Dark mode'
+
+                        }</Button>
                         {state.room ? <Button color="inherit" onClick={() => navigate('/')} endIcon={<MeetingRoomIcon />}>Leave room</Button> : null}
                         <Button color="inherit" onClick={handleLogout} endIcon={<LogoutIcon />} >Logout</Button>
                     </Grid>

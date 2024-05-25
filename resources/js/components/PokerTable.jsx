@@ -12,9 +12,13 @@ import NoAccountsIcon from '@mui/icons-material/NoAccounts';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import GameInfo from './GameInfo';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import { useTheme } from '@mui/material/styles';
+
 
 export default function PokerTable() {
     const { state, setState } = useAppState();
+    const currentTheme = useTheme();
+    const { tableCard } = currentTheme.customComponents;
 
     return (
         <Container sx={{ flexGrow: 1, overflow: 'auto', mb: 2 }}>
@@ -44,7 +48,7 @@ export default function PokerTable() {
                                     display: 'flex',
                                     justifyContent: 'center',
                                     alignItems: 'center',
-                                    backgroundColor: state.room?.game?.voted.some(u => u.uuid === user.uuid) ? indigo[50] : blueGrey[50],
+                                    backgroundColor: state.room?.game?.voted.some(u => u.uuid === user.uuid) ? tableCard.selectedBackgroundColor : tableCard.backgroundColor,
                                     transition: 'all 0.1s ease-in-out',
                                 }}
                             >
@@ -52,7 +56,7 @@ export default function PokerTable() {
                                     state.room?.game?.result?.votes !== null && state.room?.game?.result?.votes.hasOwnProperty(user.uuid)
                                         ? <Typography sx={{ fontSize: '40px' }} color={'primary'}>
                                             {state.room?.game?.result?.votes[user.uuid]}
-                                        </Typography> : <CheckCircle sx={{ fontSize: '40px' }} color='primary' />
+                                        </Typography> : <CheckCircle sx={{ fontSize: '40px' }} color='success' />
                                     : state.room?.spectators?.includes(user.uuid) ? <VisibilityIcon fontSize='large' /> : <HelpIcon fontSize='large' />}
                             </Card>
                             <Chip
