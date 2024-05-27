@@ -22,22 +22,28 @@ export default function GameInfo() {
                 },
             }}
             >
+                <Typography variant='body1'>
+                    Room: <Typography color="secondary" variant='body1' component='span'>{state.room?.name}</Typography>
+                </Typography>
+
+                <Divider orientation="vertical" variant="middle" flexItem />
                 {state.room.game ? <>
+
                     <Typography variant='body1'>
-                        Game: {state.room?.game?.name}
+                        Game: <Typography color="secondary" variant='body1' component='span'>{state.room?.game?.name}</Typography>
                     </Typography>
                     <Divider orientation="vertical" variant="middle" flexItem />
                     <Typography variant='body1'>
-                        Game state: {state.room?.game?.ended ? 'Finished' : 'Ongoing'}
+                        Game state: <Typography color="secondary" variant='body1' component='span'>{state.room?.game?.ended ? 'Finished' : 'Ongoing'}</Typography>
                     </Typography>
                 </>
                     : <Typography variant='body1'>
-                        No ongoing or past game. Create new game!
+                        No ongoing or past game. <Typography color="secondary" variant='body1' component='span'>Create new game!</Typography>
                     </Typography>
                 }
                 <Divider orientation="vertical" variant="middle" flexItem />
                 <Typography variant='body1'>
-                    Operator: {state.room?.owner?.name}
+                    Operator: <Typography color="secondary" variant='body1' component='span'>{state.room?.owner?.name}</Typography>
                 </Typography>
             </Card>
         </Container>

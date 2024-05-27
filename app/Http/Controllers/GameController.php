@@ -35,6 +35,7 @@ class GameController extends Controller
 
         return [
             'room' => $room->uuid,
+            'name' => $room->name,
             'game' => $currentGame ? [
                 'uuid' => $currentGame->uuid,
             ] : null,

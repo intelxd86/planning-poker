@@ -36,7 +36,7 @@ const DarkTheme = createTheme({
             main: catppuccinMocha.sapphire,
         },
         secondary: {
-            main: catppuccinMocha.rosewater,
+            main: catppuccinMocha.teal,
         },
         background: {
             default: catppuccinMocha.mantle,
@@ -44,7 +44,7 @@ const DarkTheme = createTheme({
         },
         text: {
             primary: catppuccinMocha.text,
-            secondary: catppuccinMocha.subtext1,
+            secondary: catppuccinMocha.subtext0,
         },
         error: {
             main: catppuccinMocha.red,

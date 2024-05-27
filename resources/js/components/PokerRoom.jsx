@@ -210,7 +210,6 @@ function PokerRoom() {
                         }
                     });
                 } else {
-                    console.log('removing spectator', userUuid);
                     setState(prevState => ({
                         ...prevState,
                         room: {

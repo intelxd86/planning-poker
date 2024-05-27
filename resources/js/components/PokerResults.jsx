@@ -30,19 +30,19 @@ export default function PokerResults() {
                 }}
                 >
                     <Typography variant='body1'>
-                        Minimum: {state.room?.game?.result?.min}
+                        Minimum: <Typography color="secondary" variant='body1' component='span'>{state.room?.game?.result?.min}</Typography>
                     </Typography>
                     <Divider orientation="vertical" variant="middle" flexItem />
                     <Typography variant='body1'>
-                        Maximum: {state.room?.game?.result?.max}
+                        Maximum: <Typography color="secondary" variant='body1' component='span'>{state.room?.game?.result?.max}</Typography>
                     </Typography>
                     <Divider orientation="vertical" variant="middle" flexItem />
                     <Typography variant='body1'>
-                        Average: {state.room?.game?.result?.average}
+                        Average: <Typography color="secondary" variant='body1' component='span'>{state.room?.game?.result?.average}</Typography>
                     </Typography>
                     <Divider orientation="vertical" variant="middle" flexItem />
                     <Typography variant='body1'>
-                        Median: {state.room?.game?.result?.median}
+                        Median: <Typography color="secondary" variant='body1' component='span'>{state.room?.game?.result?.median}</Typography>
                     </Typography>
                 </Card>
             </Container> : null}
