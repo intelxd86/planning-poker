@@ -175,6 +175,8 @@ class GameTest extends TestCase
                 'uuid' => $game,
             ],
             'room' => $room,
+            'name' => 'room',
+            'owner_managed' => true,
             'owner' => [
                 'uuid' => User::where('id', $user->id)->first()->uuid,
                 'name' => User::where('id', $user->id)->first()->name
@@ -192,6 +194,8 @@ class GameTest extends TestCase
                 'uuid' => $game,
             ],
             'room' => $room,
+            'name' => 'room',
+            'owner_managed' => true,
             'owner' => [
                 'uuid' => User::where('id', $user->id)->first()->uuid,
                 'name' => User::where('id', $user->id)->first()->name
@@ -215,6 +219,8 @@ class GameTest extends TestCase
                 'uuid' => $game,
             ],
             'room' => $room,
+            'name' => 'room',
+            'owner_managed' => true,
             'owner' => [
                 'uuid' => User::where('id', $user->id)->first()->uuid,
                 'name' => User::where('id', $user->id)->first()->name
@@ -276,10 +282,12 @@ class GameTest extends TestCase
         $response->assertJsonValidationErrors(['cards']);
         $response->assertJson(['errors' => ['cards' => ['Deck cards must be a string of comma separated values']]]);
 
-        $response = $this->actingAs($user)->postJson('/api/deck', ['name' => 'fibo', 'cards' => '1,2,3,4,5', 'is_public' => true]);
+        $response = $this->actingAs($user)->postJson('/api/deck', ['name' => 'fibo', 'cards' => '1,2,3,4,5,x,a', 'is_public' => true]);
         $response->assertStatus(200);
 
         $deck = $response['deck'];
+
+        $this->assertDatabaseHas('decks', ['name' => 'fibo', 'cards' => '1,2,3,4,5,x,a', 'user_id' => $user->id, 'is_public' => false]);
 
         $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/game');
         $response->assertStatus(422);
@@ -297,9 +305,9 @@ class GameTest extends TestCase
         $game = $response['game'];
 
         $response = $this->actingAs($user)->postJson('/api/room/' . $room . '/game/' . $game . '/vote', ['value' => 'a']);
-        $response->assertStatus(422);
+        $response->assertStatus(403);
         $response->assertJsonValidationErrors(['value']);
-        $response->assertJson(['errors' => ['value' => ['Vote value must be an integer']]]);
+        $response->assertJson(['errors' => ['value' => ['Invalid card value - it is not in the deck']]]);
     }
 
     public function test_vote()

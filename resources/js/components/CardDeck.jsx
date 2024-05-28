@@ -101,7 +101,7 @@ export default function CardDeck() {
                     alignItems="center"
                     spacing={3}
                 >
-                    {state.room.game.cards.map((card) => (
+                    {state.room?.game?.cards?.map((card) => (
                         <Grid item
                             key={card}>
                             <PokerCard

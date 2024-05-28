@@ -48,11 +48,11 @@ export default function PokerTable() {
                                     display: 'flex',
                                     justifyContent: 'center',
                                     alignItems: 'center',
-                                    backgroundColor: state.room?.game?.voted.some(u => u.uuid === user.uuid) ? tableCard.selectedBackgroundColor : tableCard.backgroundColor,
+                                    backgroundColor: state.room?.game?.voted?.some(u => u.uuid === user.uuid) ? tableCard.selectedBackgroundColor : tableCard.backgroundColor,
                                     transition: 'all 0.1s ease-in-out',
                                 }}
                             >
-                                {state.room?.game?.voted.some(u => u.uuid === user.uuid) ?
+                                {state.room?.game?.voted?.some(u => u.uuid === user.uuid) ?
                                     state.room?.game?.result?.votes !== null && state.room?.game?.result?.votes.hasOwnProperty(user.uuid)
                                         ? <Typography sx={{ fontSize: '40px' }} color={'primary'}>
                                             {state.room?.game?.result?.votes[user.uuid]}

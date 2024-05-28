@@ -310,6 +310,16 @@ class GameController extends Controller
 
     public function createDeck(CreateDeckRequest $request)
     {
+        if (RateLimiter::tooManyAttempts('create-deck:' . $request->user()->id, $perMinute = 1)) {
+            $seconds = RateLimiter::availableIn('create-deck:' . $request->user()->id);
+
+            return response()->json([
+                'errors' => [
+                    'limit' => ['You may try again in ' . $seconds . ' seconds.'],
+                ]
+            ], 429);
+        }
+
         $deck = new Deck();
         $deck->uuid = Str::uuid();
         $deck->name = $request->input('name');

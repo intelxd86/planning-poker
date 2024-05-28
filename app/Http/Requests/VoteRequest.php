@@ -22,15 +22,13 @@ class VoteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'value' => ['integer'],
+
         ];
     }
 
     public function messages(): array
     {
         return [
-            //'value.required' => 'Vote value is required',
-            'value.integer' => 'Vote value must be an integer',
         ];
     }
 }
