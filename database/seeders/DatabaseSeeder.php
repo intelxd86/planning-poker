@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // \App\Models\User::factory(10)->create();
-/*
+        /*
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
@@ -29,13 +29,19 @@ class DatabaseSeeder extends Seeder
 */
         Deck::factory()->create([
             'name' => 'Default',
-            'cards' => '1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20',
+            'cards' => '1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ☕',
             'is_public' => true,
         ]);
 
         Deck::factory()->create([
             'name' => 'Fibonacci',
-            'cards' => '1, 2, 3, 5, 8, 13, 21, 34, 55, 89',
+            'cards' => '1, 2, 3, 5, 8, 13, 21, 34, 55, 89, ☕',
+            'is_public' => true,
+        ]);
+
+        Deck::factory()->create([
+            'name' => 'T-Shirt Sizes',
+            'cards' => 'XS, S, M, L, XL, XXL, ☕',
             'is_public' => true,
         ]);
     }

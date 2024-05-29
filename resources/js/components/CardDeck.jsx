@@ -5,12 +5,9 @@ import { useAppState } from './AppStateContext';
 import { Grid } from '@mui/material';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import { snackbarNotify } from './Utils';
-import Typography from '@mui/material/Typography';
 import { styled, useTheme } from '@mui/system';
-import { ThemeContext } from '@emotion/react';
-import { blueGrey, lightBlue } from '@mui/material/colors';
+import Chip from '@mui/material/Chip';
 
 const PokerCard = styled(Card)(({ theme }) => {
     const currentTheme = useTheme();
@@ -93,7 +90,9 @@ export default function CardDeck() {
     return (
         <>
             <Container sx={{ flexGrow: 0, mb: 5 }}>
-                <Divider orientation="horizontal" flexItem sx={{ my: 2 }}>Select your card</Divider>
+                <Divider orientation="horizontal" flexItem sx={{ my: 2 }}>
+                    <Chip label="Select your card" />
+                </Divider>
                 <Grid
                     container
                     direction="row"

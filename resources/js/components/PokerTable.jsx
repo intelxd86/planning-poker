@@ -54,7 +54,7 @@ export default function PokerTable() {
                             >
                                 {state.room?.game?.voted?.some(u => u.uuid === user.uuid) ?
                                     state.room?.game?.result?.votes !== null && state.room?.game?.result?.votes.hasOwnProperty(user.uuid)
-                                        ? <Typography sx={{ fontSize: '40px' }} color={'primary'}>
+                                        ? <Typography sx={{ fontSize: '30px' }} color={'primary'}>
                                             {state.room?.game?.result?.votes[user.uuid]}
                                         </Typography> : <CheckCircle sx={{ fontSize: '40px' }} color='success' />
                                     : state.room?.spectators?.includes(user.uuid) ? <VisibilityIcon fontSize='large' /> : <HelpIcon fontSize='large' />}

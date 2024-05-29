@@ -1,29 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box, Button, TextField, FormControl, InputLabel, Select, MenuItem, DialogContent, Dialog } from '@mui/material';
+import { Button, FormControl, InputLabel, Select, MenuItem, DialogContent, Dialog } from '@mui/material';
 import { snackbarNotify } from './Utils';
 import useTextInput from './UseTextInput';
 import PollIcon from '@mui/icons-material/Poll';
-import { Poll } from '@mui/icons-material';
 import CreateDeckForm from './CreateDeckForm';
-import { useSnackbar } from 'notistack';
 import { enqueueSnackbar } from 'notistack';
+import { useAppState } from './AppStateContext';
 
 export default function CreateGameForm() {
-    const [formState, setFormState] = useState({ errors: {}, fetchDeck: true });
+    const [formState, setFormState] = useState({ errors: {}, fetchDeck: true, overrideDeckUUID: false });
     const { uuid } = useParams();
     const [gameNameInput, gameName, setGameName] = useTextInput('name', formState, { label: 'Game name', required: true, id: 'game_name', type: 'text', margin: 'dense' });
     const [deckUUID, setDeckUUID] = useState('');
     const [decks, setDecks] = useState([]);
     const [open, setOpen] = React.useState(false);
+    const { state, setState } = useAppState();
 
     const fetchDeckOptions = async () => {
         try {
             const response = await window.axios.get('/api/deck');
             const deckOptions = response.data.map((deck) => ({ label: deck.name + ' (' + deck.cards + ')', id: deck.uuid }));
             setDecks(deckOptions);
-            setDeckUUID(deckOptions[0].id);
-            setFormState({ ...formState, fetchDeck: false });
+            if (formState.overrideDeckUUID !== false) {
+                setDeckUUID(formState.overrideDeckUUID);
+            }
+            else {
+                setDeckUUID(state.room?.game?.deck || deckOptions[0].id);
+            }
+            setFormState({ ...formState, fetchDeck: false, overrideDeckUUID: false });
         } catch (error) {
             if (error.response?.data?.errors) {
                 snackbarNotify(error.response.data.errors)

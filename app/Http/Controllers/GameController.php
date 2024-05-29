@@ -202,6 +202,7 @@ class GameController extends Controller
             'uuid' => $game->uuid,
             'name' => $game->name,
             'cards' => $game->deck->getCards(),
+            'deck' => $game->deck->uuid,
             'voted' => $voted,
             'ended' => $game->isEnded(),
             'reveal' => $game->canReveal(),
@@ -344,7 +345,7 @@ class GameController extends Controller
             return [
                 'uuid' => $deck->uuid,
                 'name' => $deck->name,
-                'cards' => $deck->cards,
+                'cards' => $deck->cardsToString(),
             ];
         }));
     }

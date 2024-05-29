@@ -45,6 +45,10 @@ const LightTheme = createTheme(baseTheme, {
             backgroundColor: grey[200],
             selectedBackgroundColor: '#fff'
         },
+        histogram: {
+            grid: '#ddd',
+            label: '#999'
+        }
     },
 });
 

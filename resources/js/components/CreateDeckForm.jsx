@@ -30,13 +30,10 @@ export default function CreateDeckForm(props) {
             const response = await window.axios.post('/api/deck/', { name: name, cards: cards });
             if (response.status === 200) {
                 setOpen(false);
-                setState(prevState => ({
-                    ...prevState,
-                    deck: { 'uuid': response.data.deck }
-                }))
                 props.setState(prevState => ({
                     ...prevState,
-                    fetchDeck: true
+                    fetchDeck: true,
+                    overrideDeckUUID: response.data.deck
                 }));
                 enqueueSnackbar('Deck created', { variant: 'success' })
             }

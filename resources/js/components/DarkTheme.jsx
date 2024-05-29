@@ -40,7 +40,7 @@ const DarkTheme = createTheme({
         },
         background: {
             default: catppuccinMocha.mantle,
-            paper: catppuccinMocha.crust,
+            paper: catppuccinMocha.mantle,
         },
         text: {
             primary: catppuccinMocha.text,
@@ -87,8 +87,12 @@ const DarkTheme = createTheme({
         },
         tableCard: {
             backgroundColor: catppuccinMocha.mantle,
-            selectedBackgroundColor: catppuccinMocha.crust,
+            selectedBackgroundColor: catppuccinMocha.surface0,
         },
+        histogram: {
+            grid: catppuccinMocha.surface1,
+            label: catppuccinMocha.subtext0,
+        }
     },
 });
 

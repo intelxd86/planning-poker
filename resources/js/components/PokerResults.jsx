@@ -5,6 +5,7 @@ import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider';
 import Card from '@mui/material/Card';
 import Chip from '@mui/material/Chip';
+import Histogram from './Histogram';
 
 export default function PokerResults() {
     const { state, setState } = useAppState();
@@ -30,22 +31,27 @@ export default function PokerResults() {
                 }}
                 >
                     <Typography variant='body1'>
-                        Minimum: <Typography color="secondary" variant='body1' component='span'>{state.room?.game?.result?.min}</Typography>
+                        Mode: <Typography color="secondary" variant='body1' component='span'>{state.room?.game?.result?.modes || '-'}</Typography>
                     </Typography>
                     <Divider orientation="vertical" variant="middle" flexItem />
                     <Typography variant='body1'>
-                        Maximum: <Typography color="secondary" variant='body1' component='span'>{state.room?.game?.result?.max}</Typography>
+                        Min: <Typography color="secondary" variant='body1' component='span'>{state.room?.game?.result?.min || '-'}</Typography>
                     </Typography>
                     <Divider orientation="vertical" variant="middle" flexItem />
                     <Typography variant='body1'>
-                        Average: <Typography color="secondary" variant='body1' component='span'>{state.room?.game?.result?.average}</Typography>
+                        Max: <Typography color="secondary" variant='body1' component='span'>{state.room?.game?.result?.max || '-'}</Typography>
                     </Typography>
                     <Divider orientation="vertical" variant="middle" flexItem />
                     <Typography variant='body1'>
-                        Median: <Typography color="secondary" variant='body1' component='span'>{state.room?.game?.result?.median}</Typography>
+                        Average: <Typography color="secondary" variant='body1' component='span'>{state.room?.game?.result?.average || '-'}</Typography>
+                    </Typography>
+                    <Divider orientation="vertical" variant="middle" flexItem />
+                    <Typography variant='body1'>
+                        Median: <Typography color="secondary" variant='body1' component='span'>{state.room?.game?.result?.median || '-'}</Typography>
                     </Typography>
                 </Card>
             </Container> : null}
+            <Histogram data={state.room?.game?.result?.histogram || {}} />
         </>
     )
 }

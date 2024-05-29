@@ -28,10 +28,12 @@ class Deck extends Model
     {
         $cards = explode(',', str_replace(' ', '', $this->cards));
         return array_values(
-            array_filter(
-                $cards,
-                fn ($val) => trim($val) !== '' && is_numeric($val)
-            )
+            $cards
         );
+    }
+
+    public function cardsToString(): string
+    {
+        return implode(', ', $this->getCards());
     }
 }

@@ -45,15 +45,28 @@ class Game extends Model
     {
         $votes = Vote::where('game_id', $this->id)->with('user')->get();
 
+        $numericVotes = $votes->filter(function ($vote) {
+            return is_numeric($vote->value);
+        });
+
+        $values = $votes->pluck('value')->toArray();
+        $valueCounts = array_count_values($values);
+        $maxCount = max($valueCounts);
+        $modes = array_keys($valueCounts, $maxCount);
+
+        $histogram = $valueCounts;
+
         return [
             'votes' => $votes->reduce(function ($carry, $vote) {
                 $carry[$vote->user->uuid] = $vote->value;
                 return $carry;
             }, []),
-            'average' => round($votes->avg('value'), 2),
-            'median' => $votes->median('value'),
-            'min' => $votes->min('value'),
-            'max' => $votes->max('value'),
+            'average' => $numericVotes->isEmpty() ? null : round($numericVotes->avg('value'), 2),
+            'median' => $numericVotes->isEmpty() ? null : $numericVotes->median('value'),
+            'min' => $numericVotes->isEmpty() ? null : $numericVotes->min('value'),
+            'max' => $numericVotes->isEmpty() ? null : $numericVotes->max('value'),
+            'modes' => implode(', ', $modes),
+            'histogram' => $histogram,
         ];
     }
 }
