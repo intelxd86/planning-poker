@@ -93,13 +93,19 @@ function PokerRoom() {
             })
             .joining((user) => {
                 setState(prevState => {
-                    if (prevState.users.some(u => u.uuid === user.uuid)) {
+                    const userExistsInUsers = prevState.users.some(u => u.uuid === user.uuid);
+                    const userExistsInWsUsers = prevState.ws_users.some(u => u.uuid === user.uuid);
+
+                    if (userExistsInUsers && userExistsInWsUsers) {
                         return prevState;
                     } else {
+                        const updatedUsers = userExistsInUsers ? prevState.users : [...prevState.users, user];
+                        const updatedWsUsers = userExistsInWsUsers ? prevState.ws_users : [...prevState.ws_users, user];
+
                         return {
                             ...prevState,
-                            users: [...prevState.users, user],
-                            ws_users: [...prevState.ws_users, user]
+                            users: updatedUsers,
+                            ws_users: updatedWsUsers
                         };
                     }
                 });
@@ -125,14 +131,16 @@ function PokerRoom() {
                 console.log('NewGameEvent', event);
                 fetchGame(event.game)
                     .then(game => {
-                        setState(prevState => ({
-                            ...prevState,
-                            room: {
-                                ...prevState.room,
-                                game: game
-                            },
-                            users: prevState.ws_users
-                        }));
+                        setState(prevState => {
+                            return {
+                                ...prevState,
+                                room: {
+                                    ...prevState.room,
+                                    game: game
+                                },
+                                users: prevState.ws_users
+                            }
+                        });
                     })
                     .catch(error => {
                         console.error(error);
