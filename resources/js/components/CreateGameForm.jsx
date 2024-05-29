@@ -19,7 +19,7 @@ export default function CreateGameForm() {
 
     const fetchDeckOptions = async () => {
         try {
-            const response = await window.axios.get('/api/deck');
+            const response = await window.axios.get('/api/room/' + state.room.room + '/deck');
             const deckOptions = response.data.map((deck) => ({ label: deck.name + ' (' + deck.cards + ')', id: deck.uuid }));
             setDecks(deckOptions);
             if (formState.overrideDeckUUID !== false) {

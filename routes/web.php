@@ -23,8 +23,8 @@ Route::group(['prefix' => 'api'], function () {
 
     Route::group(['middleware' => 'auth:web'], function () {
         Route::post('/deck', [GameController::class, 'createDeck']);
-        Route::get('/deck', [GameController::class, 'getDecks']);
 
+        Route::get('/room/{room}/deck', [GameController::class, 'getDecks']);
         Route::get('/room', [GameController::class, 'getUserRooms']);
         Route::get('/room/{room}', [GameController::class, 'roomInfo']);
         Route::post('/room', [GameController::class, 'createRoom']);

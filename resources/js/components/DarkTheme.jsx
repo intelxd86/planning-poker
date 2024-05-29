@@ -90,7 +90,7 @@ const DarkTheme = createTheme({
             selectedBackgroundColor: catppuccinMocha.surface0,
         },
         histogram: {
-            grid: catppuccinMocha.surface1,
+            grid: catppuccinMocha.surface0,
             label: catppuccinMocha.subtext0,
         }
     },

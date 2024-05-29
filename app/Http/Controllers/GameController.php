@@ -334,12 +334,18 @@ class GameController extends Controller
         return response()->json(['deck' => $deck->uuid]);
     }
 
-    public function getDecks(Request $request)
+    public function getDecks(Request $request, Room $room)
     {
-        $decks = Deck::where(function ($query) use ($request) {
+        $userAndPublicDecks = Deck::where(function ($query) use ($request) {
             $query->where('user_id', $request->user()->id)
                 ->orWhere('is_public', true);
-        })->get();
+        });
+
+        $decksInRoom = Deck::whereHas('games', function ($query) use ($room) {
+            $query->where('room_id', $room->id);
+        });
+
+        $decks = $userAndPublicDecks->union($decksInRoom)->get();
 
         return response()->json($decks->map(function ($deck) {
             return [
@@ -349,6 +355,7 @@ class GameController extends Controller
             ];
         }));
     }
+
 
     public function toggleRoomManaged(Request $request, Room $room)
     {
