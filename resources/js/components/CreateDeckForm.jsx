@@ -36,6 +36,8 @@ export default function CreateDeckForm(props) {
                     overrideDeckUUID: response.data.deck
                 }));
                 enqueueSnackbar('Deck created', { variant: 'success' })
+                setName('');
+                setCards('');
             }
         } catch (error) {
             if (error.response?.data?.errors) {
