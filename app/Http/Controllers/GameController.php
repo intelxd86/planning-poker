@@ -18,6 +18,7 @@ use App\Models\Spectator;
 use App\Models\Vote;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
@@ -220,6 +221,39 @@ class GameController extends Controller
         $result = $game->getResult();
 
         return response()->json($result);
+    }
+
+
+    public function restartGame(Request $request, Room $room, Game $game)
+    {
+        if ($room->owner_managed && $room->user_id !== $request->user()->id) {
+            return response()->json(['errors' => ['room' => ['You are not the owner of this room']]], 403);
+        }
+
+        if (!$game->isEnded()) {
+            return response()->json(['errors' => ['game' => ['This game did not end yet']]], 403);
+        }
+
+        $currentGame = Game::where('room_id', $room->id)
+            ->with('deck')
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (!$currentGame->isEnded()) {
+            return response()->json(['errors' => ['game' => ['There is already a game ongoing in this room']]], 403);
+        }
+
+        return DB::transaction(function () use ($room, $game) {
+            $game->ended_at = null;
+            $game->reveal_at = null;
+            $game->save();
+
+            Vote::where('game_id', $game->id)->delete();
+
+            broadcast(new NewGameEvent($room, $game));
+
+            return;
+        });
     }
 
     public function stopGame(Request $request, Room $room, Game $game)

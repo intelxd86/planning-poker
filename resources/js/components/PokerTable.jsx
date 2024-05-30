@@ -13,7 +13,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import GameInfo from './GameInfo';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useTheme } from '@mui/material/styles';
-
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 
 export default function PokerTable() {
     const { state, setState } = useAppState();
@@ -57,7 +57,7 @@ export default function PokerTable() {
                                         ? <Typography sx={{ fontSize: '30px' }} color={'primary'}>
                                             {state.room?.game?.result?.votes[user.uuid]}
                                         </Typography> : <CheckCircle sx={{ fontSize: '40px' }} color='success' />
-                                    : state.room?.spectators?.includes(user.uuid) ? <VisibilityIcon fontSize='large' /> : <HelpIcon fontSize='large' />}
+                                    : state.room?.spectators?.includes(user.uuid) ? <VisibilityIcon fontSize='large' /> :  state.room?.game?.reveal ? <HighlightOffIcon fontSize='large' /> : <HelpIcon fontSize='large' /> }
                             </Card>
                             <Chip
                                 icon={state.ws_users?.some(u => u.uuid === user.uuid) ? <AccountCircleIcon /> : <NoAccountsIcon />}
