@@ -11,6 +11,9 @@ const baseTheme = createTheme({
         secondary: {
             main: '#dc004e',
         },
+        background: {
+            zebra: '#fafafa',
+        },
     },
     typography: {
         fontFamily: 'Roboto, sans-serif',
@@ -47,7 +50,7 @@ const LightTheme = createTheme(baseTheme, {
         },
         histogram: {
             grid: '#ddd',
-            label: '#999'
+            label: '#666'
         }
     },
 });

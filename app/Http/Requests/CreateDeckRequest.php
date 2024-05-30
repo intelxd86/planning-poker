@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\CommaSeparatedMaxLength;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -30,8 +31,7 @@ class CreateDeckRequest extends FormRequest
                 }),
                 'string'
             ],
-            'cards' => ['required', 'string'],
-            //'is_public' => ['required', 'boolean']
+            'cards' => ['required', 'string', new CommaSeparatedMaxLength()],
         ];
     }
 

@@ -418,4 +418,23 @@ class GameController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    public function gameHistory(Request $request, Room $room)
+    {
+        $games = Game::where('room_id', $room->id)
+            ->whereNotNull('ended_at')
+            ->whereNotNull('reveal_at')
+            ->orderBy('ended_at', 'desc')
+            ->limit(20)
+            ->get();
+
+        return response()->json($games->map(function ($game) {
+            return [
+                'uuid' => $game->uuid,
+                'name' => $game->name,
+                'ended_at' => $game->ended_at,
+                'result' => $game->getResult(),
+            ];
+        }));
+    }
 }

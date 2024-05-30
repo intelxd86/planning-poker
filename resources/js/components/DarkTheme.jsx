@@ -41,6 +41,7 @@ const DarkTheme = createTheme({
         background: {
             default: catppuccinMocha.mantle,
             paper: catppuccinMocha.mantle,
+            zebra: catppuccinMocha.crust,
         },
         text: {
             primary: catppuccinMocha.text,
