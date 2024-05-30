@@ -96,11 +96,16 @@ export default function Navigation() {
     }
 
     const handleToggleDarkMode = () => {
-        setState(prevState => ({
-            ...prevState,
-            darkMode: !prevState.darkMode
-        }))
-    }
+        setState(prevState => {
+            const newDarkMode = !prevState.darkMode;
+            localStorage.setItem('darkMode', newDarkMode);
+            return {
+                ...prevState,
+                darkMode: newDarkMode
+            };
+        });
+    };
+
 
     const isRoomOwner = state.room?.owner.uuid === state.user.uuid || false;
     const showCreateGameForm = !state.room || !state.room.game || state.room.game.result !== null;
