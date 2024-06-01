@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAppState } from './AppStateContext';
 import { useNavigate } from 'react-router-dom';
@@ -6,11 +6,15 @@ import CardDeck from './CardDeck';
 import PokerTable from './PokerTable';
 import Countdown from './Countdown';
 import PokerResults from './PokerResults';
+import { enqueueSnackbar } from 'notistack';
+import audioFile from '../assets/door_slam.mp3';
 
 function PokerRoom() {
     const { state, setState } = useAppState();
     const { uuid } = useParams();
     const navigate = useNavigate();
+    const initRef = useRef(false);
+    const audioRef = useRef(null);
 
     useEffect(() => {
         async function init() {
@@ -40,7 +44,10 @@ function PokerRoom() {
             }
         }
 
-        init();
+        if (!initRef.current) {
+            initRef.current = true;
+            init();
+        }
 
         return () => {
             window.Echo.leave('room.' + uuid);
@@ -129,6 +136,7 @@ function PokerRoom() {
             })
             .listen('NewGameEvent', (event) => {
                 console.log('NewGameEvent', event);
+                enqueueSnackbar('New game has just started', { variant: 'success' })
                 fetchGame(event.game)
                     .then(game => {
                         setState(prevState => {
@@ -240,6 +248,10 @@ function PokerRoom() {
                     }
                 }));
             })
+            .listen('UserRageQuitEvent', (event) => {
+                console.log('UserRageQuitEvent', event);
+                audioRef.current.play();
+            })
             .error((error) => {
                 console.error(error);
             });
@@ -282,6 +294,7 @@ function PokerRoom() {
 
     return (
         <>
+            <audio ref={audioRef} src={audioFile} type="audio/mpeg" style={{ display: 'none' }} />
             {state.room?.game?.reveal_countdown === true ?
                 <Countdown
                     duration={3}

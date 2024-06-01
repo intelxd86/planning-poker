@@ -12,4 +12,5 @@ export default defineConfig({
         }),
         react(),
     ],
+    assetsInclude: ['**/*.mp3'],
 });

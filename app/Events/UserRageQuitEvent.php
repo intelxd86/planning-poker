@@ -13,7 +13,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class UserSpectatorEvent implements ShouldBroadcastNow
+class UserRageQuitEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -24,10 +24,9 @@ class UserSpectatorEvent implements ShouldBroadcastNow
     /**
      * Create a new event instance.
      */
-    public function __construct(Room $room, User $user, bool $spectator)
+    public function __construct(Room $room, User $user)
     {
         $this->room = $room;
-        $this->spectator = $spectator;
         $this->user = $user;
     }
 
@@ -45,6 +44,6 @@ class UserSpectatorEvent implements ShouldBroadcastNow
 
     public function broadcastWith(): array
     {
-        return ['user' => $this->user->uuid, 'spectator' => $this->spectator];
+        return ['user' => $this->user->uuid];
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\GameEndEvent;
 use App\Events\NewGameEvent;
 use App\Events\RoomUpdatedEvent;
+use App\Events\UserRageQuitEvent;
 use App\Events\UserSpectatorEvent;
 use App\Events\VoteEvent;
 use App\Http\Requests\CreateDeckRequest;
@@ -436,5 +437,24 @@ class GameController extends Controller
                 'result' => $game->getResult(),
             ];
         }));
+    }
+
+    public function roomQuit(Request $request, Room $room)
+    {
+        if (RateLimiter::tooManyAttempts('quit-room:' . $request->user()->id, $perMinute = 1)) {
+            $seconds = RateLimiter::availableIn('quit-room:' . $request->user()->id);
+
+            return response()->json([
+                'errors' => [
+                    'limit' => ['You may try again in ' . $seconds . ' seconds.'],
+                ]
+            ], 429);
+        }
+
+        RateLimiter::increment('quit-room:' . $request->user()->id);
+
+        broadcast(new UserRageQuitEvent($room, $request->user()));
+
+        return response()->json(['success' => true]);
     }
 }

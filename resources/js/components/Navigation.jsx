@@ -15,6 +15,7 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import BuildIcon from '@mui/icons-material/Build';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
+import RageQuitButton from './RageQuitButton';
 
 export default function Navigation() {
     const { state, setState } = useAppState();
@@ -106,7 +107,6 @@ export default function Navigation() {
         });
     };
 
-
     const isRoomOwner = state.room?.owner.uuid === state.user.uuid || false;
     const showCreateGameForm = !state.room || !state.room.game || state.room.game.result !== null;
     const isSpectator = state.room?.spectators?.includes(state.user.uuid);
@@ -143,9 +143,8 @@ export default function Navigation() {
                     <Grid item>
                         <Button color="inherit" onClick={handleToggleDarkMode} endIcon={state.darkMode ? <LightModeIcon /> : <DarkModeIcon />}>{
                             state.darkMode ? 'Light mode' : 'Dark mode'
-
                         }</Button>
-                        {state.room ? <Button color="inherit" onClick={() => navigate('/')} endIcon={<MeetingRoomIcon />}>Leave room</Button> : null}
+                        {state.room ? <RageQuitButton /> : null}
                         <Button color="inherit" onClick={handleLogout} endIcon={<LogoutIcon />} >Logout</Button>
                     </Grid>
                 </Grid>
