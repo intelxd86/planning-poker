@@ -195,7 +195,7 @@ export default function PokerResults() {
 
     return (
         <>
-            {state.room.game ?<Container
+            {state.room.game && <Container
                 sx={{
                     display: 'flex',
                     justifyContent: 'center',
@@ -269,7 +269,7 @@ export default function PokerResults() {
                     </Typography>
                 </Card>
             </Container> : null}
-            <Histogram data={state.room?.game?.result?.histogram || {}} />
+            {state.room.game && <Histogram data={state.room?.game?.result?.histogram || {}} />}
         </>
     )
 }
