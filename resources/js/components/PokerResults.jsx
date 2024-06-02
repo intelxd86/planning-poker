@@ -195,7 +195,7 @@ export default function PokerResults() {
 
     return (
         <>
-            <Container
+            {state.room.game ?<Container
                 sx={{
                     display: 'flex',
                     justifyContent: 'center',
@@ -229,7 +229,7 @@ export default function PokerResults() {
                     open={openHistoryDialog}
                     onClose={handleCloseHistoryDialog}
                 />
-            </Container>
+            </Container>}
             {state.room.game ? <Container sx={{ flexGrow: 0, mb: 5 }}>
                 <Divider orientation="horizontal" flexItem sx={{ my: 2 }}>
                     <Chip label="Game result" />
