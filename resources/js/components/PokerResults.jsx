@@ -44,10 +44,10 @@ export default function PokerResults() {
     }
 
     useEffect(() => {
-        if (state.room.game.reveal) {
+        if (state.room?.game?.reveal) {
             fetchGameHistory();
         }
-    }, [state.room.game.reveal]);
+    }, [state.room?.game?.reveal]);
 
     const StyledTableRow = styled(TableRow)(({ theme }) => ({
         '&:nth-of-type(odd)': {
