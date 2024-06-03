@@ -138,10 +138,10 @@ export default function PokerResults() {
                 open={open}
                 onClose={onClose}
             >
-                <DialogTitle>{"Restart game"}</DialogTitle>
-                <DialogContent>
+                <DialogTitle>{"Are you sure you want to restart the game?"}</DialogTitle>
+                < DialogContent >
                     <DialogContentText>
-                        Are you sure you want to restart the game? This action cannot be undone.
+                        Game result will be erased and it will not appear in past games history.<br />This action cannot be undone.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

@@ -304,7 +304,7 @@ function PokerRoom() {
                     onComplete={handleRevealCountdown} />
                 : null}
             <PokerTable />
-            {!state.room?.game || (state.room.game.ended === true && state.room.game.reveal === true) ?
+            {!state.room?.game?.uuid || (state.room.game.ended === true && state.room.game.reveal === true) ?
                 state.room?.game?.result === null ? null : <PokerResults />
                 : <CardDeck />}
         </>
