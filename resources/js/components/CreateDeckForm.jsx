@@ -14,7 +14,7 @@ export default function CreateDeckForm(props) {
     const { state, setState } = useAppState();
 
     const [nameInput, name, setName] = useTextInput('name', formState, { label: 'Name', required: true, id: 'deck_name', margin: 'dense' });
-    const [cardsInput, cards, setCards] = useTextInput('cards', formState, { label: 'Cards', required: true, id: 'deck_cards', type: 'text', margin: 'dense' });
+    const [cardsInput, cards, setCards] = useTextInput('cards', formState, { label: 'Cards', required: true, id: 'deck_cards', type: 'text', margin: 'dense', helperText: 'Comma separated list of cards, up to 3 characters per value' });
 
     const handleClickOpen = () => {
         setOpen(true);

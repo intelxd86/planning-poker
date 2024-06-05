@@ -14,11 +14,19 @@ import GameInfo from './GameInfo';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useTheme } from '@mui/material/styles';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import BlockIcon from '@mui/icons-material/Block';
+import Tooltip from '@mui/material/Tooltip';
 
 export default function PokerTable() {
     const { state, setState } = useAppState();
     const currentTheme = useTheme();
     const { tableCard } = currentTheme.customComponents;
+
+    const handleBanUser = (uuid) => () => {
+
+    }
+
+    const isRoomOwner = state.room?.owner.uuid === state.user.uuid || false;
 
     return (
         <Container sx={{ flexGrow: 1, overflow: 'auto', mb: 2 }}>
@@ -56,13 +64,15 @@ export default function PokerTable() {
                                     state.room?.game?.result?.votes !== null && state.room?.game?.result?.votes.hasOwnProperty(user.uuid)
                                         ? <Typography sx={{ fontSize: '30px' }} color={'primary'}>
                                             {state.room?.game?.result?.votes[user.uuid]}
-                                        </Typography> : <CheckCircle sx={{ fontSize: '40px' }} color='success' />
-                                    : state.room?.spectators?.includes(user.uuid) ? <VisibilityIcon fontSize='large' /> :  state.room?.game?.reveal ? <HighlightOffIcon fontSize='large' /> : <HelpIcon fontSize='large' /> }
+                                        </Typography> : <Tooltip title="User voted"><CheckCircle sx={{ fontSize: '40px' }} color='success' /></Tooltip>
+                                    : state.room?.spectators?.includes(user.uuid) ? <Tooltip title="Spectator"><VisibilityIcon fontSize='large' /></Tooltip> : state.room?.game?.reveal ? <Tooltip title="User didn't vote"><HighlightOffIcon fontSize='large' /></Tooltip> : <Tooltip title="User didn't vote yet"><HelpIcon fontSize='large' /></Tooltip>}
                             </Card>
                             <Chip
-                                icon={state.ws_users?.some(u => u.uuid === user.uuid) ? <AccountCircleIcon /> : <NoAccountsIcon />}
+                                icon={state.ws_users?.some(u => u.uuid === user.uuid) ? <Tooltip title="User online"><AccountCircleIcon /></Tooltip> : <Tooltip title="User offline"><NoAccountsIcon /></Tooltip>}
                                 label={user.name}
                                 sx={{ mt: 1 }}
+                                /*onDelete={isRoomOwner ? handleBanUser(user.uuid) : null}*/
+                                deleteIcon={isRoomOwner ? <Tooltip title="Ban user"><BlockIcon /></Tooltip> : null}
                             />
                         </Grid>
                     ))
